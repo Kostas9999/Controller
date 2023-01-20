@@ -1,28 +1,23 @@
+const dgram = require("dgram");
 const net = require("net");
-const port = 7070;
-const host = "127.0.0.1";
 
-const server = net.createServer();
-server.listen(port, host, () => {
-  console.log("TCP Server is running on port " + port + ".");
+const TCP_socket = net.createServer();
+const UDP_socket = dgram.createSocket("udp4");
+
+UDP_socket.on("message", (msg, user) => {
+  console.log("\n\r" + msg + "\n\r");
 });
 
-//let sockets = [];
-
-server.on("connection", function (sock) {
+TCP_socket.on("connection", function (sock) {
   console.log("CONNECTED: " + sock.remoteAddress + ":" + sock.remotePort);
-  //sockets.push(sock);
 
   sock.on("data", function (data) {
     console.log("" + data);
   });
 
-  sock.on("error", function (data) {
-    console.log("DATA " + sock.remoteAddress + ": " + data);
-  });
-
-  // Add a 'close' event handler to this instance of socket
-  sock.on("close", function (data) {
-    console.log("closed " + data);
+  sock.on("close", function () {
+    console.log("closed " + sock.remoteAddress + ":" + sock.remotePort);
   });
 });
+UDP_socket.bind(7070);
+TCP_socket.listen(7070);
