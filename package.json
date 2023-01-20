@@ -1,0 +1,24 @@
+{
+  "name": "controller",
+  "version": "1.0.0",
+  "description": "MidWare",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kostas9999/Controller.git"
+  },
+  "author": "B00148740",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Kostas9999/Controller/issues"
+  },
+  "homepage": "https://github.com/Kostas9999/Controller#readme",
+  "dependencies": {
+    "net": "^1.0.2",
+    "nodemon": "^2.0.20"
+  }
+}
