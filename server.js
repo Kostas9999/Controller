@@ -29,7 +29,7 @@ const fs = require("fs");
 
 const options = {
   ca: fs.readFileSync("./cert/ca.pem"),
-  key: fs.readFileSync("./cert/ca-key.pem"),
+  key: fs.readFileSync("./cert/key.pem"),
   cert: fs.readFileSync("./cert/ca.pem"),
   passphrase: "MGproject",
   rejectUnauthorized: false,
@@ -52,7 +52,8 @@ const server = tls.createServer(options, (socket) => {
   socket.on("error", (e) => {
     console.log("Error - " + e);
   });
-  socket.pipe(socket);
+  const fileStream = fs.createWriteStream("./receivedData.txt");
+  client.pipe(fileStream);
 });
 
 server.listen(57070, () => {
