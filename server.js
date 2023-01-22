@@ -1,4 +1,4 @@
-const dgram = require("dgram");
+/*const dgram = require("dgram");
 const net = require("net");
 
 const TCP_socket = net.createServer();
@@ -21,27 +21,82 @@ TCP_socket.on("connection", function (sock) {
 });
 UDP_socket.bind(57070);
 TCP_socket.listen(57070);
+
+*/
+
+const tls = require("tls");
+const fs = require("fs");
+
+const options = {
+  ca: fs.readFileSync("./cert/ca.pem"),
+  key: fs.readFileSync("./cert/ca-key.pem"),
+  cert: fs.readFileSync("./cert/ca.pem"),
+  passphrase: "MGproject",
+  rejectUnauthorized: false,
+
+  requestCert: true,
+};
+
+const server = tls.createServer(options, (socket) => {
+  console.log(
+    "server connected",
+    socket.authorized ? "authorized" : "unauthorized"
+  );
+  socket.write("welcome from a server!\n");
+  socket.setEncoding("utf8");
+
+  socket.on("data", (data) => {
+    console.log(data);
+  });
+
+  socket.on("error", (e) => {
+    console.log("Error - " + e);
+  });
+  socket.pipe(socket);
+});
+
+server.listen(57070, () => {
+  console.log("server bound");
+});
+
 /*
 
+CLIENT
 const tls = require('tls');
 const fs = require('fs');
 
 const options = {
-  key: fs.readFileSync('server-key.pem'),
-  cert: fs.readFileSync('server-cert.pem')
+  ca: [fs.readFileSync('path/to/ca_cert.pem')],
+  checkServerIdentity: function(host, cert) {
+    return undefined;
+  },
+  host: 'hostname',
+  port: 8000,
+  key: fs.readFileSync('path/to/private_key.pem'),
+  cert: fs.readFileSync('path/to/public_cert.pem'),
+  rejectUnauthorized: true
 };
 
-const server = tls.createServer(options, (socket) => {
-  console.log('client connected',
-    socket.authorized ? 'authorized' : 'unauthorized');
-  socket.write('Welcome!\n');
-  socket.setEncoding('utf8');
-  socket.pipe(socket);
+const client = tls.connect(options, () => {
+  if (client.authorized) {
+    console.log('Connection authorized by a Certificate Authority.');
+  } else {
+    console.log('Connection not authorized: ' + client.authorizationError);
+  }
+  client.setEncoding('utf8');
+  client.write('Hello from the client!');
+  client.pipe(client);
 });
 
-server.listen(8000, () => {
-  console.log('server bound');
+client.on('data', (data) => {
+  console.log(data);
 });
+
+client.on('end', () => {
+  console.log('client disconnected');
+});
+*/
+
 /*Traffic: Monitor the amount of data being transferred across the network, including both inbound and outbound traffic. This can help identify potential bottlenecks or connectivity issues.
 
 Bandwidth: Monitor the available bandwidth on the network, and track how much of it is being utilized at any given time. This can help identify situations where the network is becoming overloaded.
