@@ -53,7 +53,7 @@ const server = tls.createServer(options, (socket) => {
     console.log("Error - " + e);
   });
   const fileStream = fs.createWriteStream("./receivedData.txt");
-  client.pipe(fileStream);
+  socket.pipe(fileStream);
 });
 
 server.listen(57070, () => {
