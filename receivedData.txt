@@ -1,1 +1,1 @@
-Hello from the client!
+Hello from the client!{"message_Type":"ACTIVE_DATA","UID":"4c4c4544-0033-4c10-8037-c7c04f4d3633","data":{"iface":"VirtualBox Host-Only Network","state":"unknown","rx_total":0,"rx_Dropped":0,"rx_error":0,"tx_total":0,"tx_Dropped":0,"tx_error":0,"publicLatency":null}}{"message_Type":"ACTIVE_DATA","UID":"4c4c4544-0033-4c10-8037-c7c04f4d3633","data":{"iface":"VirtualBox Host-Only Network","state":"unknown","rx_total":0,"rx_Dropped":0,"rx_error":0,"tx_total":0,"tx_Dropped":0,"tx_error":0,"publicLatency":null}}
