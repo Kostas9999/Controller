@@ -1,7 +1,12 @@
 const tls = require("tls");
 const fs = require("fs");
+const { exec } = require("child_process");
 
-let postbox = ["up", "down", "send"];
+let postbox = [
+  { type: "EXEC", msg: "IPCONFIG", ID: 1 },
+  { type: "GET", msg: "PASSIVEDATA", ID: 2 },
+  { type: "EXEC", msg: "PING 8.8.8.8", ID: 3 },
+];
 
 const options = {
   ca: fs.readFileSync("./cert/ca.pem"),
@@ -17,21 +22,21 @@ const server = tls.createServer(options, (socket) => {
     "server connected",
     socket.authorized ? "authorized" : "unauthorized"
   );
-  socket.write("welcome from a server!\n");
+  socket.write(JSON.stringify({ type: "MSG", data: "Connected to server" }));
   socket.setEncoding("utf8");
 
   socket.on("data", (data) => {
     console.log(data + " " + socket.remoteAddress.substring(7));
 
     if (postbox.length > 0) {
-      socket.write("EXEC ->" + postbox.pop());
+      socket.write(JSON.stringify({ type: "POSTBOX", data: postbox.pop() }));
     }
   });
 
   socket.on("error", (e) => {
     console.log(e);
   });
- // const fileStream = fs.createWriteStream("./receivedData.txt");
+  // const fileStream = fs.createWriteStream("./receivedData.txt");
   // socket.pipe(fileStream);
 });
 
