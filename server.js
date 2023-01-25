@@ -9,7 +9,6 @@ const options = {
   cert: fs.readFileSync("./cert/ca.pem"),
   passphrase: "MGproject",
   rejectUnauthorized: false,
-
   requestCert: true,
 };
 
@@ -22,22 +21,22 @@ const server = tls.createServer(options, (socket) => {
   socket.setEncoding("utf8");
 
   socket.on("data", (data) => {
-    console.log(data);
+    console.log(data + " " + socket.remoteAddress.substring(7));
 
     if (postbox.length > 0) {
-      socket.write("EXEC\n" + postbox.pop());
+      socket.write("EXEC ->" + postbox.pop());
     }
   });
 
   socket.on("error", (e) => {
     console.log(e);
   });
-  const fileStream = fs.createWriteStream("./receivedData.txt");
+ // const fileStream = fs.createWriteStream("./receivedData.txt");
   // socket.pipe(fileStream);
 });
 
 server.listen(57070, () => {
-  console.log("server bound");
+  console.log("Server started");
 });
 
 /*const dgram = require("dgram");
