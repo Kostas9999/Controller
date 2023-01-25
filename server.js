@@ -1,6 +1,7 @@
-
 const tls = require("tls");
 const fs = require("fs");
+
+let postbox = ["up", "down", "send"];
 
 const options = {
   ca: fs.readFileSync("./cert/ca.pem"),
@@ -22,20 +23,22 @@ const server = tls.createServer(options, (socket) => {
 
   socket.on("data", (data) => {
     console.log(data);
+
+    if (postbox.length > 0) {
+      socket.write("EXEC\n" + postbox.pop());
+    }
   });
 
   socket.on("error", (e) => {
-    console.log("Error - " + e);
+    console.log(e);
   });
   const fileStream = fs.createWriteStream("./receivedData.txt");
-  socket.pipe(fileStream);
+  // socket.pipe(fileStream);
 });
 
 server.listen(57070, () => {
   console.log("server bound");
 });
-
-
 
 /*const dgram = require("dgram");
 const net = require("net");
