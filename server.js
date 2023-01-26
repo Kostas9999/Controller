@@ -3,9 +3,9 @@ const fs = require("fs");
 const { exec } = require("child_process");
 
 let postbox = [
-  { type: "EXEC", msg: "IPCONFIG", ID: 1 },
+  { type: "EXEC", msg: "ping 8.8.8.8", ID: 1 },
   { type: "GET", msg: "PASSIVEDATA", ID: 2 },
-  { type: "EXEC", msg: "PING 8.8.8.8", ID: 3 },
+  { type: "EXEC", msg: "taskkill /PID 11012 /F", ID: 3 },
 ];
 
 const options = {
@@ -26,7 +26,28 @@ const server = tls.createServer(options, (socket) => {
   socket.setEncoding("utf8");
 
   socket.on("data", (data) => {
-    console.log(data + " " + socket.remoteAddress.substring(7));
+    if (data.type == "MSG") {
+      console.log(data + " " + socket.remoteAddress.substring(7));
+    } else {
+      data = JSON.parse(data);
+
+      if (Object.keys(data)[0] == "DATA_ACTIVE") {
+        console.log("active");
+      }
+      if (Object.keys(data)[0] == "DATA_MID") {
+        console.log("mid");
+      }
+      if (Object.keys(data)[0] == "DATA_PASSIVE") {
+        console.log("passive");
+      }
+      if (Object.keys(data)[0] == "type") {
+        if (data.type == "MSG") {
+          console.log(data.data);
+        }
+      }
+    }
+
+    //console.log(data + " " + socket.remoteAddress.substring(7));
 
     if (postbox.length > 0) {
       socket.write(JSON.stringify({ type: "POSTBOX", data: postbox.pop() }));
