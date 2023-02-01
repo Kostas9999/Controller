@@ -1,5 +1,5 @@
-const connection = require("../connections/db_connection");
-const promisePool = connection.module.connection.promise();
+const pool = require("../connections/db_connection");
+const promisePool = pool.module.pool.promise();
 
 module.exports = async function (data) {
   let keys = Object.keys(data.data);
@@ -22,6 +22,7 @@ module.exports = async function (data) {
         const [rows] = await promisePool.execute(
           `REPLACE INTO ${data.UID}.ports ( ${ports_keys} ) VALUES (${values_String} );`
         );
+        pool.module.pool.releaseConnection(promisePool);
       });
     }
 
@@ -34,6 +35,7 @@ module.exports = async function (data) {
           // 'INSERT INTO e368b009_dc92_11e5_9c43_bc00000c0000.disc ( fs, type, size, used, available, uses, mount, rw ) VALUES ("C:","NTFS",119254544384,86206210048,33048334336,72.29,"C:",true );'
           `REPLACE INTO ${data.UID}.${key} ( fs, type, size, used, available, uses, mount, rw  ) VALUES (${values_String} );`
         );
+        pool.module.pool.releaseConnection(promisePool);
       });
     }
     if (key === "user") {
@@ -43,6 +45,7 @@ module.exports = async function (data) {
       const [rows] = await promisePool.execute(
         `REPLACE INTO ${data.UID}.${key} ( ${user_keys} ) VALUES (${values_String} );`
       );
+      pool.module.pool.releaseConnection(promisePool);
     }
   });
 };

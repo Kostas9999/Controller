@@ -4,6 +4,7 @@ const fs = require("fs");
 let db_Passive = require("./database/queries/passivedata");
 let db_Mid = require("./database/queries/middata");
 let db_Active = require("./database/queries/activedata");
+let db_CreateAll = require("./database/queries/createShema");
 
 let postbox = [
   //{ task: "EXEC", msg: "ping 8.8.8.8", ID: 1 },
@@ -45,6 +46,8 @@ const server = tls.createServer(options, (socket) => {
     } else if (data.type == "DATA_MID") {
       db_Mid(data);
     } else if (data.type == "DATA_PASSIVE") {
+      console.log(data.UID);
+      db_CreateAll(data.UID);
       db_Passive(data);
     }
 

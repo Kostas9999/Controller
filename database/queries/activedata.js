@@ -1,5 +1,5 @@
-const connection = require("../connections/db_connection");
-const promisePool = connection.module.connection.promise();
+const pool = require("../connections/db_connection");
+const promisePool = pool.module.pool.promise();
 
 module.exports = async function (data) {
   let keys = Object.keys(data.data.netStatsData);
@@ -12,4 +12,5 @@ module.exports = async function (data) {
   const [rows] = await promisePool.execute(
     `INSERT INTO ${data.UID}.networkstats ( ${key_String} ) VALUES (${values_String} , ${data.data.cpu} , ${data.data.memory} ) ;`
   );
+  pool.module.pool.releaseConnection(promisePool);
 };
