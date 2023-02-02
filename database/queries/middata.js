@@ -19,9 +19,14 @@ module.exports = async function (data) {
         values_String = JSON.stringify(Object.values(key));
         values_String = values_String.substring(1, values_String.length - 1);
 
-        const [rows] = await promisePool.execute(
-          `REPLACE INTO ${data.UID}.ports ( ${ports_keys} ) VALUES (${values_String} );`
-        );
+        try {
+          const [rows] = await promisePool.execute(
+            `REPLACE INTO ${data.UID}.ports ( ${ports_keys} ) VALUES (${values_String} );`
+          );
+        } catch (error) {
+          console.log(" " + error);
+        }
+
         pool.module.pool.releaseConnection(promisePool);
       });
     }
@@ -30,21 +35,29 @@ module.exports = async function (data) {
       data.data.disc.forEach(async (disc) => {
         values_String = JSON.stringify(Object.values(disc));
         values_String = values_String.substring(1, values_String.length - 1);
+        try {
+          const [rows] = await promisePool.execute(
+            // 'INSERT INTO e368b009_dc92_11e5_9c43_bc00000c0000.disc ( fs, type, size, used, available, uses, mount, rw ) VALUES ("C:","NTFS",119254544384,86206210048,33048334336,72.29,"C:",true );'
+            `REPLACE INTO ${data.UID}.${key} ( fs, type, size, used, available, uses, mount, rw  ) VALUES (${values_String} );`
+          );
+        } catch (error) {
+          console.log(" " + error);
+        }
 
-        const [rows] = await promisePool.execute(
-          // 'INSERT INTO e368b009_dc92_11e5_9c43_bc00000c0000.disc ( fs, type, size, used, available, uses, mount, rw ) VALUES ("C:","NTFS",119254544384,86206210048,33048334336,72.29,"C:",true );'
-          `REPLACE INTO ${data.UID}.${key} ( fs, type, size, used, available, uses, mount, rw  ) VALUES (${values_String} );`
-        );
         pool.module.pool.releaseConnection(promisePool);
       });
     }
     if (key === "user") {
       values_String = JSON.stringify(Object.values(data.data.user));
       values_String = values_String.substring(1, values_String.length - 1);
+      try {
+        const [rows] = await promisePool.execute(
+          `REPLACE INTO ${data.UID}.${key} ( ${user_keys} ) VALUES (${values_String} );`
+        );
+      } catch (error) {
+        console.log(" " + error);
+      }
 
-      const [rows] = await promisePool.execute(
-        `REPLACE INTO ${data.UID}.${key} ( ${user_keys} ) VALUES (${values_String} );`
-      );
       pool.module.pool.releaseConnection(promisePool);
     }
   });

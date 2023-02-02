@@ -21,7 +21,7 @@ const options = {
   requestCert: true,
 };
 
-const server = tls.createServer(options, (socket) => {
+const server = tls.createServer(options, async (socket) => {
   console.log(
     "server connected",
     socket.authorized ? "authorized" : "unauthorized"
@@ -33,7 +33,11 @@ const server = tls.createServer(options, (socket) => {
     data = JSON.parse(data);
 
     // Sort data by its type
-    if (data.type == "MSG") {
+
+    if (data.type == "HELLO") {
+      console.log("Connected: " + data.UID + " Date: " + new Date());
+      db_CreateAll(data.UID);
+    } else if (data.type == "MSG") {
       console.log(
         data.data +
           " " +
@@ -46,8 +50,6 @@ const server = tls.createServer(options, (socket) => {
     } else if (data.type == "DATA_MID") {
       db_Mid(data);
     } else if (data.type == "DATA_PASSIVE") {
-      console.log(data.UID);
-      db_CreateAll(data.UID);
       db_Passive(data);
     }
 
@@ -63,7 +65,7 @@ const server = tls.createServer(options, (socket) => {
   });
 
   socket.on("error", (e) => {
-    console.log(e);
+    console.log("user left" + e);
   });
   // use it to log data or errors !!!!  TODO: decide loging
 

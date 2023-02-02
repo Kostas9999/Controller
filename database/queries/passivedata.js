@@ -9,9 +9,12 @@ module.exports = async function (data) {
   keys.forEach(async (key) => {
     // get most reacent entry in database to compare
     // Reason is that: for passive data only changes are recorded such as OS update
-    const [rows] = await promisePool.execute(
-      `SELECT * FROM ${data.UID}.${key} ORDER BY Created DESC LIMIT 1;`
-    );
+
+    const [rows] = await promisePool
+      .execute(
+        `SELECT * FROM ${data.UID}.${key} ORDER BY Created DESC LIMIT 1;`
+      )
+      .catch((e) => console.log("db ERROR " + e));
 
     // check is there was any entries in database
     // delete field "Created" is it will differ from data that is collected and what is in database
@@ -34,9 +37,13 @@ module.exports = async function (data) {
 
       // db query
       // insert into "device id" as database, "key" for current table, stringifyed keys and values /// TODO: PREPARED STATAMENTS
-      const [rows] = await promisePool.execute(
-        `INSERT INTO ${data.UID}.${key} ( ${key_String} ) VALUES (${values_String}) ;`
-      );
+      try {
+        const [rows] = await promisePool.execute(
+          `INSERT INTO ${data.UID}.${key} ( ${key_String} ) VALUES (${values_String}) ;`
+        );
+      } catch (error) {
+        console.log("db Error passive " + error);
+      }
     }
   });
 };
