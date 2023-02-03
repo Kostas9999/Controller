@@ -2,11 +2,12 @@ const pool = require("../connections/db_connection");
 const promisePool = pool.module.pool.promise();
 
 module.exports = async function (data) {
-  let keys = Object.keys(data.data.netStatsData);
+  
+  let keys = Object.keys(data.data.networkStats);
 
   key_String = keys.join(", ") + ", cpu, memory";
 
-  values_String = JSON.stringify(Object.values(data.data.netStatsData));
+  values_String = JSON.stringify(Object.values(data.data.networkStats));
   values_String = values_String.substring(1, values_String.length - 1);
 
   try {
