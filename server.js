@@ -6,6 +6,11 @@ let db_Mid = require("./database/queries/middata");
 let db_Active = require("./database/queries/activedata");
 let db_CreateAll = require("./database/queries/createShema");
 
+let db_getBaseline = require("./baseLine/getBaseline");
+
+
+let baseline=[]; 
+
 let postbox = [
   //{ task: "EXEC", msg: "ping 8.8.8.8", ID: 1 },
   // { type: "GET", msg: "PASSIVEDATA", ID: 2 },
@@ -30,7 +35,12 @@ const server = tls.createServer(options, async (socket) => {
   socket.write(JSON.stringify({ type: "MSG", data: "Connected to a server" }));
   socket.setEncoding("utf8");
 
+
+
   socket.on("data", (data) => {
+
+    // do validation here ///////////////////////////////////////////////////////////////
+
     data = JSON.parse(data);
 
     // Sort data by its type
@@ -38,6 +48,7 @@ const server = tls.createServer(options, async (socket) => {
     if (data.type == "HELLO") {
       console.log("Connected: " + data.UID + " Date: " + new Date());
       db_CreateAll(data.UID);
+     
     } else if (data.type == "MSG") {
       console.log(
         data.data +
@@ -48,6 +59,7 @@ const server = tls.createServer(options, async (socket) => {
       );
     } else if (data.type == "DATA_ACTIVE") {
       db_Active(data);
+   
     } else if (data.type == "DATA_MID") {
       db_Mid(data);
     } else if (data.type == "DATA_PASSIVE") {
@@ -76,4 +88,13 @@ const server = tls.createServer(options, async (socket) => {
 
 server.listen(57070, () => {
   console.log("Server started");
+
+  db_getBaseline().then((bline)=>{
+    baseline.push( bline);         // what if server restarts // check if baseline is null
+    
+          })
+
+          
+
+  
 });
