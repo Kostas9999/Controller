@@ -9,9 +9,6 @@ let db_CreateAll = require("./database/queries/createShema");
 let db_getBaseline = require("./baseLine/getBaseline");
 let compareBaseline = require("./baseLine/compareBaseline");
 
-
-
-
 let postbox = [
   //{ task: "EXEC", msg: "ping 8.8.8.8", ID: 1 },
   // { type: "GET", msg: "PASSIVEDATA", ID: 2 },
@@ -30,16 +27,13 @@ const options = {
 
 const server = tls.createServer(options, async (socket) => {
   console.log(
-    "server connected",
+    "Server connected",
     socket.authorized ? "authorized" : "unauthorized"
   );
-  socket.write(JSON.stringify({ type: "MSG", data: "Connected to a server" }));
   socket.setEncoding("utf8");
-
-
+  socket.write(JSON.stringify({ type: "MSG", data: "Connected to a server" }));
 
   socket.on("data", (data) => {
-
     // do validation here ///////////////////////////////////////////////////////////////
 
     data = JSON.parse(data);
@@ -49,10 +43,7 @@ const server = tls.createServer(options, async (socket) => {
     if (data.type == "HELLO") {
       console.log("Connected: " + data.UID + " Date: " + new Date());
       db_CreateAll(data.UID);
-    //  db_getBaseline.get(data.UID);
-      
-      
-     
+      //  db_getBaseline.get(data.UID);
     } else if (data.type == "MSG") {
       console.log(
         data.data +
@@ -62,15 +53,14 @@ const server = tls.createServer(options, async (socket) => {
           new Date()
       );
     } else if (data.type == "DATA_ACTIVE") {
-     
       db_Active(data);
-      compareBaseline.active(data)   
+      compareBaseline.active(data);
     } else if (data.type == "DATA_MID") {
       db_Mid(data);
-      compareBaseline.mid(data)
+      compareBaseline.mid(data);
     } else if (data.type == "DATA_PASSIVE") {
       db_Passive(data);
-      compareBaseline.passive(data)
+      compareBaseline.passive(data);
     }
 
     // Discard data if not recognised
@@ -85,7 +75,7 @@ const server = tls.createServer(options, async (socket) => {
   });
 
   socket.on("error", (e) => {
-    console.log("user left" + e);
+    console.log("User left " + e);
   });
   // use it to log data or errors !!!!  TODO: decide loging
 
@@ -95,10 +85,4 @@ const server = tls.createServer(options, async (socket) => {
 
 server.listen(57070, () => {
   console.log("Server started");
-
-
-
-          
-
-  
 });
