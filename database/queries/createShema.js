@@ -1,10 +1,17 @@
 const pool = require("../connections/db_connection");
-const connection = pool.module.pool.promise();
+const {client} = require("../connections/db_pg_connection");
+
+
+//const connection = pool.module.pool.promise();
+const connection = client;
 
 module.exports = async function (hwuuid) {
-  connection.query(`INSERT INTO groupproject.devices (id) VALUES ( ? );`, [
-    hwuuid,
-  ]);
+
+  connection.query(`CREATE TABLE IF NOT EXISTS devices (
+    id varchar(255) DEFAULT NULL);`)
+
+
+  connection.query(`INSERT INTO groupproject.devices (id) VALUES ( ${hwuuid} );`);
 
   await connection.query(`CREATE DATABASE IF NOT EXISTS ${hwuuid};`);
 
@@ -15,11 +22,11 @@ module.exports = async function (hwuuid) {
     LocalLatency int DEFAULT NULL,
     PublicLatency int DEFAULT NULL,
     defaultGateway varchar(50) DEFAULT NULL,
-    Ports varchar(2555) CHARACTER SET utf8mb4  DEFAULT NULL,
+    Ports varchar(2555)   DEFAULT NULL,
     Collectionperiond int DEFAULT NULL,
     CollectedFrom date DEFAULT NULL,
     Created timestamp NULL DEFAULT CURRENT_TIMESTAMP
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;`
+  ) ENGINE=InnoDB DEFAULT  ;`
   );
 
   connection.query(
