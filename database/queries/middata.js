@@ -11,7 +11,10 @@ module.exports = async function (data) {
   ports_keys = ports_keys.join(", ");
 
   let disc_keys = Object.keys(data.data.disc[0]);
-  disc_keys = disc_keys.join(", ");
+  disc_keys = disc_keys.join(", ").replace(" use,", " uses,");
+
+  let arp_keys = Object.keys(data.data.arp[0]);
+  arp_keys = arp_keys.join(", ");
 
   let user_keys = Object.keys(data.data.user);
   user_keys = user_keys.join(", ");
@@ -25,12 +28,11 @@ module.exports = async function (data) {
           .replaceAll('"', "' ");
 
         try {
-          client.query(`SET search_path TO '${data.UID}';`);     
+          client.query(`SET search_path TO '${data.UID}';`);
 
           client.query(
             `INSERT INTO "ports" ( ${ports_keys}  ) VALUES (${values_String})  ON CONFLICT (port) DO UPDATE SET created = now();`
           );
-
         } catch (error) {
           console.log(error);
         }
@@ -46,12 +48,10 @@ module.exports = async function (data) {
         try {
           client.query(`SET search_path TO '${data.UID}';`);
           await client.query(
-    
-
-            `INSERT INTO "disc" ( fs, type, size, used, available, uses, mount, rw  ) VALUES (${values_String})  ON CONFLICT (fs) DO UPDATE SET created = now();`
+            `INSERT INTO "disc" (${disc_keys}  ) VALUES (${values_String})  ON CONFLICT (fs) DO UPDATE SET created = now();`
           );
         } catch (error) {
-          console.log(" " + error);
+          console.log(error);
         }
       });
     }
@@ -61,7 +61,6 @@ module.exports = async function (data) {
         .substring(1, values_String.length - 1)
         .replaceAll('"', "' ");
       try {
-        console.log(values_String)
         client.query(`SET search_path TO '${data.UID}';`);
         await client.query(
           //`REPLACE INTO ${data.UID}.${key} ( ${user_keys} ) VALUES (${values_String} );`
@@ -70,6 +69,23 @@ module.exports = async function (data) {
       } catch (error) {
         console.log(" " + error);
       }
+    }
+
+    if (key === "arp") {
+      data.data.arp.forEach(async (arp) => {
+        values_String = JSON.stringify(Object.values(arp));
+        values_String = values_String
+          .substring(1, values_String.length - 1)
+          .replaceAll('"', "' ");
+        try {
+          client.query(`SET search_path TO '${data.UID}';`);
+          await client.query(
+            `INSERT INTO "arp" ( ${arp_keys} ) VALUES (${values_String})  ON CONFLICT (mac) DO UPDATE SET created = now();`
+          );
+        } catch (error) {
+          console.log(" " + error);
+        }
+      });
     }
   });
 };

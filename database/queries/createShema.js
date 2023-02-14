@@ -64,7 +64,6 @@ module.exports = async function (hwuuid) {
 
   connection.query(
     `CREATE TABLE IF NOT EXISTS "networkinterface" (
-    iface_id int ,
     iface varchar(50) DEFAULT NULL,
     speed int DEFAULT NULL,
     mac varchar(50) DEFAULT NULL,
@@ -120,7 +119,16 @@ module.exports = async function (hwuuid) {
   connection.query(
     `CREATE TABLE IF NOT EXISTS "user" (
       username varchar(50)   NOT NULL DEFAULT 'none' UNIQUE,
-      loginTime varchar(50) DEFAULT NULL     
+      loginTime varchar(50) DEFAULT NULL,     
+      created timestamp NULL DEFAULT CURRENT_TIMESTAMP
+    ) ;`
+  );
+
+  connection.query(
+    `CREATE TABLE IF NOT EXISTS "arp" (
+      ip varchar(50)   NOT NULL DEFAULT 'none' UNIQUE,      
+      mac varchar(50) DEFAULT NULL UNIQUE,   
+      type varchar(50) DEFAULT NULL,   
       created timestamp NULL DEFAULT CURRENT_TIMESTAMP
     ) ;`
   );
