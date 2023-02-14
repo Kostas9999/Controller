@@ -1,22 +1,21 @@
 const pool = require("../connections/db_connection");
-const {client} = require("../connections/db_pg_connection");
-
+const { client } = require("../connections/db_pg_connection");
 
 //const connection = pool.module.pool.promise();
 const connection = client;
 
 module.exports = async function (hwuuid) {
+  //  connection.query(
+  //   ` INSERT INTO  groupproject.devices (id) VALUES(' ${hwuuid}'); `
+  // );
 
-  connection.query(`CREATE TABLE IF NOT EXISTS devices (
-    id varchar(255) DEFAULT NULL);`)
+  await connection.query(` CREATE schema IF NOT EXISTS "${hwuuid}";`);
 
+  client.query(`SET search_path TO '${hwuuid}';`);
 
-  connection.query(`INSERT INTO groupproject.devices (id) VALUES ( ${hwuuid} );`);
-
-  await connection.query(`CREATE DATABASE IF NOT EXISTS ${hwuuid};`);
-
-  connection.query(
-    `CREATE TABLE IF NOT EXISTS ${hwuuid}.baseline (
+  await connection.query(
+    `
+    CREATE TABLE IF NOT EXISTS "baseline " (
     MemoryTotal bigint DEFAULT NULL,
     MemoryUses int DEFAULT NULL,
     LocalLatency int DEFAULT NULL,
@@ -26,46 +25,46 @@ module.exports = async function (hwuuid) {
     Collectionperiond int DEFAULT NULL,
     CollectedFrom date DEFAULT NULL,
     Created timestamp NULL DEFAULT CURRENT_TIMESTAMP
-  ) ENGINE=InnoDB DEFAULT  ;`
+  )   ;`
   );
 
   connection.query(
-    `CREATE TABLE IF NOT EXISTS ${hwuuid}.disc (
-    fs varchar(50) CHARACTER SET utf8mb4  NOT NULL DEFAULT 'none',
+    `CREATE TABLE IF NOT EXISTS "disc" (
+    fs varchar(50)   NOT NULL DEFAULT 'none',
     type varchar(50) DEFAULT NULL,
     size bigint DEFAULT NULL,
     used bigint DEFAULT NULL,
     available bigint DEFAULT NULL,
-    uses double DEFAULT NULL,
+    uses DOUBLE PRECISION DEFAULT NULL,
     mount varchar(50) DEFAULT NULL,
-    rw tinytext,
+    rw varchar,
     Created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (fs)
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;`
+  )  ;`
   );
 
   connection.query(
-    `CREATE TABLE IF NOT EXISTS ${hwuuid}.events (
-      event_ID int NOT NULL AUTO_INCREMENT,
+    `CREATE TABLE IF NOT EXISTS "events" (
+      event_ID int NOT NULL ,
       Comment varchar(50) DEFAULT NULL,
     Created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (event_ID) USING BTREE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;`
+      PRIMARY KEY (event_ID) 
+    )  ;`
   );
 
   connection.query(
-    `CREATE TABLE IF NOT EXISTS ${hwuuid}.hardware (
-      HWUUID varchar(50) CHARACTER SET utf8mb4 NOT NULL DEFAULT 'none',
+    `CREATE TABLE IF NOT EXISTS "hardware" (
+      HWUUID varchar(50)  NOT NULL DEFAULT 'none',
       Title varchar(255) DEFAULT NULL,
       TotalMemory bigint DEFAULT NULL,
-      Created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (HWUUID)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;`
+      Created timestamp NULL DEFAULT CURRENT_TIMESTAMP
+      
+    ) ;`
   );
 
   connection.query(
-    `CREATE TABLE IF NOT EXISTS ${hwuuid}.networkinterface (
-    iface_id int NOT NULL AUTO_INCREMENT,
+    `CREATE TABLE IF NOT EXISTS "networkinterface" (
+    iface_id int ,
     iface varchar(50) DEFAULT NULL,
     speed int DEFAULT NULL,
     mac varchar(50) DEFAULT NULL,
@@ -73,15 +72,15 @@ module.exports = async function (hwuuid) {
     IPv4Sub varchar(50) DEFAULT NULL,
     IPv6 varchar(50) DEFAULT NULL,
     IPv6Sub varchar(50) DEFAULT NULL,
-    Created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (iface_id),
-    UNIQUE KEY Created (Created)
-  ) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 ;`
+    Created timestamp NULL DEFAULT CURRENT_TIMESTAMP
+    
+    
+  ) ;`
   );
 
   connection.query(
-    `CREATE TABLE IF NOT EXISTS ${hwuuid}.networkstats (
-      iface varchar(50) CHARACTER SET utf8mb4 DEFAULT NULL,
+    `CREATE TABLE IF NOT EXISTS "networkstats" (
+      iface varchar(50)  DEFAULT NULL,
       rx_total bigint DEFAULT '0',
       rx_dropped bigint DEFAULT '0',
       rx_error bigint DEFAULT '0',
@@ -91,39 +90,37 @@ module.exports = async function (hwuuid) {
       localLatency int DEFAULT '0',
       publicLatency int DEFAULT NULL,
       defaultGateway varchar(50) DEFAULT NULL,
+      dgmac varchar(50)  DEFAULT NULL,
       cpu int DEFAULT NULL,
       memory int DEFAULT NULL,
       Created timestamp NULL DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;`
+    )  ;`
   );
 
   connection.query(
-    `CREATE TABLE IF NOT EXISTS ${hwuuid}.os (
+    `CREATE TABLE IF NOT EXISTS "os" (
       hostname varchar(50) DEFAULT NULL,
       version varchar(50) DEFAULT NULL,
       relese varchar(50) DEFAULT NULL,
       build varchar(50) DEFAULT NULL,
-      Created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE KEY Created (Created)
-    ) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 ;`
+      Created timestamp NULL DEFAULT CURRENT_TIMESTAMP UNIQUE      
+    )  ;`
   );
 
   connection.query(
-    `CREATE TABLE IF NOT EXISTS ${hwuuid}.ports (
-    port int DEFAULT NULL,
-    processName varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
+    `CREATE TABLE IF NOT EXISTS "ports" (
+    port int DEFAULT NULL UNIQUE,
+    processName varchar(255)  DEFAULT NULL,
     PID int DEFAULT NULL,
-    processPath varchar(255) CHARACTER SET utf8mb4  DEFAULT NULL,
-    Created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY port (port)
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;`
+    processPath varchar(255)   DEFAULT NULL,
+    Created timestamp NULL DEFAULT CURRENT_TIMESTAMP
+  )  ;`
   );
 
   connection.query(
-    `CREATE TABLE IF NOT EXISTS ${hwuuid}.user (
-      username varchar(50) CHARACTER SET utf8mb4  NOT NULL DEFAULT 'none',
-      loginTime varchar(50) DEFAULT NULL,
-      UNIQUE KEY port (username)
-    ) ENGINE=InnoDB AUTO_INCREMENT=5440 DEFAULT CHARSET=utf8mb4 ;`
+    `CREATE TABLE IF NOT EXISTS "user" (
+      username varchar(50)   NOT NULL DEFAULT 'none' UNIQUE,
+      loginTime varchar(50) DEFAULT NULL     
+    ) ;`
   );
 };

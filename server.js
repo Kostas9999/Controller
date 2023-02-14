@@ -35,8 +35,11 @@ const server = tls.createServer(options, async (socket) => {
 
   socket.on("data", (data) => {
     // do validation here ///////////////////////////////////////////////////////////////
-
-    data = JSON.parse(data);
+    try {
+      data = JSON.parse(data);
+    } catch (error) {
+      console.log(error);
+    }
 
     // Sort data by its type
 
@@ -54,13 +57,13 @@ const server = tls.createServer(options, async (socket) => {
       );
     } else if (data.type == "DATA_ACTIVE") {
       db_Active(data);
-  //    compareBaseline.active(data);
+      //    compareBaseline.active(data);
     } else if (data.type == "DATA_MID") {
       db_Mid(data);
-    //  compareBaseline.mid(data);
+      //  compareBaseline.mid(data);
     } else if (data.type == "DATA_PASSIVE") {
       db_Passive(data);
-    //  compareBaseline.passive(data);
+      //  compareBaseline.passive(data);
     }
 
     // Discard data if not recognised
