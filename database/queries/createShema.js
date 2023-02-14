@@ -24,7 +24,7 @@ module.exports = async function (hwuuid) {
     Ports varchar(2555)   DEFAULT NULL,
     Collectionperiond int DEFAULT NULL,
     CollectedFrom date DEFAULT NULL,
-    Created timestamp NULL DEFAULT CURRENT_TIMESTAMP
+    created timestamp NULL DEFAULT CURRENT_TIMESTAMP
   )   ;`
   );
 
@@ -38,7 +38,7 @@ module.exports = async function (hwuuid) {
     uses DOUBLE PRECISION DEFAULT NULL,
     mount varchar(50) DEFAULT NULL,
     rw varchar,
-    Created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (fs)
   )  ;`
   );
@@ -47,7 +47,7 @@ module.exports = async function (hwuuid) {
     `CREATE TABLE IF NOT EXISTS "events" (
       event_ID int NOT NULL ,
       Comment varchar(50) DEFAULT NULL,
-    Created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (event_ID) 
     )  ;`
   );
@@ -57,7 +57,7 @@ module.exports = async function (hwuuid) {
       HWUUID varchar(50)  NOT NULL DEFAULT 'none',
       Title varchar(255) DEFAULT NULL,
       TotalMemory bigint DEFAULT NULL,
-      Created timestamp NULL DEFAULT CURRENT_TIMESTAMP
+      created timestamp NULL DEFAULT CURRENT_TIMESTAMP
       
     ) ;`
   );
@@ -72,7 +72,7 @@ module.exports = async function (hwuuid) {
     IPv4Sub varchar(50) DEFAULT NULL,
     IPv6 varchar(50) DEFAULT NULL,
     IPv6Sub varchar(50) DEFAULT NULL,
-    Created timestamp NULL DEFAULT CURRENT_TIMESTAMP
+    created timestamp NULL DEFAULT CURRENT_TIMESTAMP
     
     
   ) ;`
@@ -93,7 +93,7 @@ module.exports = async function (hwuuid) {
       dgmac varchar(50)  DEFAULT NULL,
       cpu int DEFAULT NULL,
       memory int DEFAULT NULL,
-      Created timestamp NULL DEFAULT CURRENT_TIMESTAMP
+      created timestamp NULL DEFAULT CURRENT_TIMESTAMP
     )  ;`
   );
 
@@ -103,7 +103,7 @@ module.exports = async function (hwuuid) {
       version varchar(50) DEFAULT NULL,
       relese varchar(50) DEFAULT NULL,
       build varchar(50) DEFAULT NULL,
-      Created timestamp NULL DEFAULT CURRENT_TIMESTAMP UNIQUE      
+      created timestamp NULL DEFAULT CURRENT_TIMESTAMP UNIQUE      
     )  ;`
   );
 
@@ -113,7 +113,7 @@ module.exports = async function (hwuuid) {
     processName varchar(255)  DEFAULT NULL,
     PID int DEFAULT NULL,
     processPath varchar(255)   DEFAULT NULL,
-    Created timestamp NULL DEFAULT CURRENT_TIMESTAMP
+    created timestamp NULL DEFAULT CURRENT_TIMESTAMP
   )  ;`
   );
 
@@ -121,6 +121,7 @@ module.exports = async function (hwuuid) {
     `CREATE TABLE IF NOT EXISTS "user" (
       username varchar(50)   NOT NULL DEFAULT 'none' UNIQUE,
       loginTime varchar(50) DEFAULT NULL     
+      created timestamp NULL DEFAULT CURRENT_TIMESTAMP
     ) ;`
   );
 };

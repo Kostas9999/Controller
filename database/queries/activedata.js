@@ -1,7 +1,7 @@
 const pool = require("../connections/db_connection");
 const { client } = require("../connections/db_pg_connection");
 
-const promisePool = client;
+//const promisePool = client;
 //const promisePool = pool.module.pool.promise();
 
 module.exports = async function (data) {
@@ -9,11 +9,16 @@ module.exports = async function (data) {
 
   key_String = keys.join(", ") + ", cpu, memory";
 
-  values_String = Object.values(data.data.networkStats);
+  values_String = JSON.stringify(Object.values(data.data.networkStats));
 
-  // values_String = values_String.substring(0 , values_String.length - 1);
+  values_String = values_String
+          .substring(1, values_String.length - 1)
+          .replaceAll('"', "' ");
   //console.log(values_String);
   client.query(`SET search_path TO '${data.UID}';`);
+
+  await client.query( `INSERT INTO "networkstats" ( ${key_String} ) VALUES ( ${values_String}, '${data.data.cpu}' , '${data.data.memory}');`)
+  /*
   try {
     await promisePool.query(
       `INSERT INTO "networkstats" ( ${key_String} ) VALUES (
@@ -35,4 +40,7 @@ module.exports = async function (data) {
   } catch (e) {
     console.log(e);
   }
+*/
+
+
 };

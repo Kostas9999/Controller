@@ -1,6 +1,6 @@
-const pool = require("../connections/db_connection");
+//const pool = require("../connections/db_connection");
 const { client } = require("../connections/db_pg_connection");
-const promisePool = client;
+//const promisePool = client;
 
 //const promisePool = pool.module.pool.promise();
 
@@ -25,21 +25,12 @@ module.exports = async function (data) {
           .replaceAll('"', "' ");
 
         try {
-          client.query(`SET search_path TO '${data.UID}';`);
+          client.query(`SET search_path TO '${data.UID}';`);     
 
-          //   let row = promisePool.query(`
-          //     UPDATE ports SET ( ${ports_keys} ) = (${values_String} )
-          //       WHERE port = ${key.port} ;`);
-
-          promisePool.query(
+          client.query(
             `INSERT INTO "ports" ( ${ports_keys}  ) VALUES (${values_String})  ON CONFLICT (port) DO UPDATE SET created = now();`
           );
 
-          //SET dname = EXCLUDED.dname
-
-          //  const rows = await promisePool.query(
-          //     `REPLACE INTO ports ( ${ports_keys} ) VALUES (${values_String} );`
-          //   );
         } catch (error) {
           console.log(error);
         }
@@ -54,9 +45,8 @@ module.exports = async function (data) {
           .replaceAll('"', "' ");
         try {
           client.query(`SET search_path TO '${data.UID}';`);
-          const rows = await promisePool.query(
-            // 'INSERT INTO ${key} ( fs, type, size, used, available, uses, mount, rw ) VALUES ("C:","NTFS",119254544384,86206210048,33048334336,72.29,"C:",true );'
-            //  `REPLACE INTO ${key} ( fs, type, size, used, available, uses, mount, rw  ) VALUES (${values_String} );`
+          await client.query(
+    
 
             `INSERT INTO "disc" ( fs, type, size, used, available, uses, mount, rw  ) VALUES (${values_String})  ON CONFLICT (fs) DO UPDATE SET created = now();`
           );
@@ -71,8 +61,9 @@ module.exports = async function (data) {
         .substring(1, values_String.length - 1)
         .replaceAll('"', "' ");
       try {
+        console.log(values_String)
         client.query(`SET search_path TO '${data.UID}';`);
-        const rows = await promisePool.query(
+        await client.query(
           //`REPLACE INTO ${data.UID}.${key} ( ${user_keys} ) VALUES (${values_String} );`
           `INSERT INTO "${key}" ( ${user_keys} ) VALUES (${values_String})  ON CONFLICT (username) DO UPDATE SET created = now();`
         );
