@@ -1,8 +1,4 @@
-const pool = require("../connections/db_connection");
 const { client } = require("../connections/db_pg_connection");
-
-//const connection = pool.module.pool.promise();
-const connection = client;
 
 module.exports = async function (hwuuid) {
   //  connection.query(
