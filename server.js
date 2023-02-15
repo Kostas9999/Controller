@@ -6,7 +6,7 @@ let db_Mid = require("./database/queries/middata");
 let db_Active = require("./database/queries/activedata");
 let db_CreateAll = require("./database/queries/createShema");
 
-let db_getBaseline = require("./baseLine/getBaseline");
+let db_Baseline = require("./baseLine/buildBaseline");
 //let compareBaseline = require("./baseLine/compareBaseline");
 
 let postbox = [
@@ -45,7 +45,9 @@ const server = tls.createServer(options, async (socket) => {
 
     if (data.type == "HELLO") {
       console.log("Connected: " + data.UID + " Date: " + new Date());
-      db_CreateAll(data.UID);
+      db_CreateAll(data.UID).then(() => {
+        db_Baseline.build(data.UID);
+      });
 
       //  db_getBaseline.get(data.UID);
     } else if (data.type == "MSG") {
