@@ -1,22 +1,35 @@
-const pool = require("../database/connections/db_connection");
-const promisePool = pool.module.pool.promise();
+const { client } = require("../database/connections/db_pg_connection");
+const buldBaseline = require("./buildBaseline");
 
-let baseLine = [];
+let baseLine = {};
 
-async function get(UID) {
-  //  UID = "4c4c4544_0033_4c10_8037_c7c04f4d3633"; /// temp !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+UID = "e368b009_dc92_11e5_9c43_bc00000c0000"; /// temp !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+gatewayMAC = " 78-24-af-87-bd-34";
+get(UID, gatewayMAC);
 
-  const [rows] = await promisePool.execute(
-    `SELECT * FROM ${UID}.baseline ORDER BY Created ASC LIMIT 1;`
+async function get(UID, gatewayMAC) {
+  client.query(`SET search_path TO '${UID}';`);
+  const rows = await client.query(
+    `SELECT * FROM baseline WHERE defaultgateway = '${gatewayMAC}' LIMIT 1;`
   );
 
- 
-  baseLine.push({
-    UID: UID,
-    data: rows[0],
-  });
+  // if there is entry
+  // check if is collected from full period
+  //if yes return values
+  //if no send update request and return values
+  //// if no etries for this gateway mac create new entry
+
+  if (rows.rowCount > 0) {
+    if (typeof baseLine[`${UID}`] === "undefined") {
+      baseLine[`${UID}`] = { data: rows.rows };
+    }
+    //  buldBaseline(UID);
+  } else {
+    client.query(
+      `INSERT INTO "baseline" (defaultgateway, CollectedFrom) VALUES ( '${gatewayMAC}' , CURRENT_TIMESTAMP ) `
+    );
+    console.log(`Created new baseline for: ${UID} with gateway: ${gatewayMAC}`);
+  }
 }
-
-
 
 module.exports = { get, baseLine };
