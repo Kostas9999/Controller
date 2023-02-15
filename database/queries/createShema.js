@@ -128,8 +128,9 @@ module.exports = async function (hwuuid) {
     publicLatency int DEFAULT NULL,
     publicLatency_t BIGINT default 200,
     defaultGateway varchar(50) DEFAULT NULL ,
-    Ports varchar(2555)   DEFAULT NULL,
-    Collectionperiond int DEFAULT 14 ,
+    ports varchar   DEFAULT NULL,
+    neighbours varchar  DEFAULT NULL,
+    Collectionperiod int DEFAULT 14 ,
     CollectedFrom timestamp DEFAULT NULL,
     created timestamp NULL DEFAULT CURRENT_TIMESTAMP, 
     PRIMARY KEY (defaultGateway)

@@ -23,7 +23,7 @@ async function get(UID, gatewayMAC) {
     if (typeof baseLine[`${UID}`] === "undefined") {
       baseLine[`${UID}`] = { data: rows.rows };
     }
-    //  buldBaseline(UID);
+    buldBaseline(UID, gatewayMAC);
   } else {
     client.query(
       `INSERT INTO "baseline" (defaultgateway, CollectedFrom) VALUES ( '${gatewayMAC}' , CURRENT_TIMESTAMP ) `
