@@ -14,24 +14,6 @@ module.exports = async function (hwuuid) {
   client.query(`SET search_path TO '${hwuuid}';`);
 
   connection.query(
-    `
-    CREATE TABLE IF NOT EXISTS "baseline" (
-    memoryTotal bigint DEFAULT NULL,
-    memoryUses int DEFAULT NULL,
-    memoryuses_t BIGINT default 80,
-    localLatency int DEFAULT NULL,
-    localLatency_t BIGINT default 200,
-    publicLatency int DEFAULT NULL,
-    publicLatency_t BIGINT default 200,
-    defaultGateway varchar(50) DEFAULT NULL,
-    Ports varchar(2555)   DEFAULT NULL,
-    Collectionperiond int DEFAULT 14 ,
-    CollectedFrom date DEFAULT DEFAULT CURRENT_DATE,
-    created timestamp NULL DEFAULT CURRENT_TIMESTAMP
-  )   ;`
-  );
-
-  connection.query(
     `CREATE TABLE IF NOT EXISTS "disc" (
     fs varchar(50)   NOT NULL DEFAULT 'none',
     type varchar(50) DEFAULT NULL,
@@ -134,5 +116,24 @@ module.exports = async function (hwuuid) {
       type varchar(50) DEFAULT NULL,   
       created timestamp NULL DEFAULT CURRENT_TIMESTAMP
     ) ;`
+  );
+
+  connection.query(
+    `
+    CREATE TABLE IF NOT EXISTS "baseline" (
+    memoryTotal bigint DEFAULT NULL,
+    memoryUses int DEFAULT NULL,
+    memoryuses_t BIGINT default 80,
+    localLatency int DEFAULT NULL,
+    localLatency_t BIGINT default 200,
+    publicLatency int DEFAULT NULL,
+    publicLatency_t BIGINT default 200,
+    defaultGateway varchar(50) DEFAULT NULL ,
+    Ports varchar(2555)   DEFAULT NULL,
+    Collectionperiond int DEFAULT 14 ,
+    CollectedFrom date DEFAULT NULL,
+    created timestamp NULL DEFAULT CURRENT_TIMESTAMP
+    PRIMARY KEY(defaultGateway)
+  )   ;`
   );
 };
