@@ -1,12 +1,15 @@
-4;
+const pool = require("../connections/db_connection");
 const { client } = require("../connections/db_pg_connection");
+
+//const connection = pool.module.pool.promise();
+const connection = client;
 
 module.exports = async function (hwuuid) {
   //  connection.query(
   //   ` INSERT INTO  groupproject.devices (id) VALUES(' ${hwuuid}'); `
   // );
 
-  await client.query(` CREATE schema IF NOT EXISTS "${hwuuid}";`);
+  await connection.query(` CREATE schema IF NOT EXISTS "${hwuuid}";`);
 
   client.query(`SET search_path TO '${hwuuid}';`);
 
@@ -116,7 +119,7 @@ module.exports = async function (hwuuid) {
   );
 
   connection.query(
-    `
+    `CREATE TABLE IF NOT EXISTS "baseline" (
     memoryTotal bigint DEFAULT NULL,
     memoryUses int DEFAULT NULL,
     memoryuses_t BIGINT default 80,
@@ -124,11 +127,11 @@ module.exports = async function (hwuuid) {
     localLatency_t BIGINT default 200,
     publicLatency int DEFAULT NULL,
     publicLatency_t BIGINT default 200,
-    defaultGateway varchar(50) DEFAULT NULL UNIQUE,
-    ports varchar(2555)   DEFAULT NULL,
-    collectionperiond int DEFAULT 14 ,
-    collectedFrom timestamp DEFAULT NULL,
-    created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    defaultGateway varchar(50) DEFAULT NULL ,
+    Ports varchar(2555)   DEFAULT NULL,
+    Collectionperiond int DEFAULT 14 ,
+    CollectedFrom timestamp DEFAULT NULL,
+    created timestamp NULL DEFAULT CURRENT_TIMESTAMP, 
     PRIMARY KEY (defaultGateway)
   )   ;`
   );

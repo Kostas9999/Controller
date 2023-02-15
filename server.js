@@ -7,7 +7,7 @@ let db_Active = require("./database/queries/activedata");
 let db_CreateAll = require("./database/queries/createShema");
 
 let db_getBaseline = require("./baseLine/getBaseline");
-let compareBaseline = require("./baseLine/compareBaseline");
+//let compareBaseline = require("./baseLine/compareBaseline");
 
 let postbox = [
   //{ task: "EXEC", msg: "ping 8.8.8.8", ID: 1 },
@@ -58,6 +58,7 @@ const server = tls.createServer(options, async (socket) => {
     } else if (data.type == "DATA_ACTIVE") {
       db_Active(data);
 
+
       //    compareBaseline.active(data);
     } else if (data.type == "DATA_MID") {
       db_Mid(data);
@@ -66,6 +67,7 @@ const server = tls.createServer(options, async (socket) => {
       //  compareBaseline.mid(data);
     } else if (data.type == "DATA_PASSIVE") {
       db_Passive(data);
+      
       //  compareBaseline.passive(data);
     }
 
