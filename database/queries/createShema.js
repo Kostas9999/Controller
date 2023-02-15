@@ -13,17 +13,20 @@ module.exports = async function (hwuuid) {
 
   client.query(`SET search_path TO '${hwuuid}';`);
 
-  await connection.query(
+  connection.query(
     `
-    CREATE TABLE IF NOT EXISTS "baseline " (
-    MemoryTotal bigint DEFAULT NULL,
-    MemoryUses int DEFAULT NULL,
-    LocalLatency int DEFAULT NULL,
-    PublicLatency int DEFAULT NULL,
+    CREATE TABLE IF NOT EXISTS "baseline" (
+    memoryTotal bigint DEFAULT NULL,
+    memoryUses int DEFAULT NULL,
+    memoryuses_t BIGINT default 80,
+    localLatency int DEFAULT NULL,
+    localLatency_t BIGINT default 200,
+    publicLatency int DEFAULT NULL,
+    publicLatency_t BIGINT default 200,
     defaultGateway varchar(50) DEFAULT NULL,
     Ports varchar(2555)   DEFAULT NULL,
-    Collectionperiond int DEFAULT NULL,
-    CollectedFrom date DEFAULT NULL,
+    Collectionperiond int DEFAULT 14 ,
+    CollectedFrom date DEFAULT DEFAULT CURRENT_DATE,
     created timestamp NULL DEFAULT CURRENT_TIMESTAMP
   )   ;`
   );
