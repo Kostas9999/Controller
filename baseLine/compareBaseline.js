@@ -53,7 +53,7 @@ async function mid(data) {
       if (!("," + baseline.ports + ",").includes("," + port.port + ",")) {
         onEvent.onEvent({
           type: "PRT_NEW",
-          data: `New open port detected ${port.port}`,
+          data: `New open port detected ${port.port} on ${data.uid} \n ${baseline.ports}`,
         });
       }
     });
