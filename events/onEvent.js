@@ -1,7 +1,9 @@
 const { client } = require("../database/connections/db_pg_connection");
 async function onEvent(event) {
   client.query(
-    `INSERT INTO  events (type, value, baseline) VALUES ( '${event.type}',  '${event.data.reading}', '${event.data.baseline}');`
+    `INSERT INTO  events (type, value, baseline) VALUES ( '${
+      event.type
+    }',  '${JSON.stringify(event.data.reading)}', '${event.data.baseline}');`
   );
 
   console.log(
