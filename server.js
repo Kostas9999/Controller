@@ -8,6 +8,7 @@ let db_CreateAll = require("./database/queries/createShema");
 
 let db_Baseline = require("./baseLine/buildBaseline");
 let compareBaseline = require("./baseLine/compareBaseline");
+let { clearBaselineBuffer } = require("./baseLine/getBaseline");
 
 let postbox = [
   //{ task: "EXEC", msg: "ping 8.8.8.8", ID: 1 },
@@ -45,10 +46,12 @@ const server = tls.createServer(options, async (socket) => {
 
     if (data.type == "HELLO") {
       console.log("Connected: " + data.UID + " Date: " + new Date());
-      db_CreateAll(data.UID)
-      setTimeout(() => {db_Baseline.build(data.UID)}, 10000); 
-       // db_Baseline.build(data.UID);
-      
+      clearBaselineBuffer(data.UID);
+      db_CreateAll(data.UID);
+      setTimeout(() => {
+        db_Baseline.build(data.UID);
+      }, 10000);
+      // db_Baseline.build(data.UID);
 
       //  db_getBaseline.get(data.UID);
     } else if (data.type == "MSG") {
@@ -68,15 +71,12 @@ const server = tls.createServer(options, async (socket) => {
     } else if (data.type == "DATA_PASSIVE") {
       compareBaseline.passive(data);
       db_Passive(data);
-  
     }
 
     // Discard data if not recognised
     else {
       console.log("UNKNOWN_DATA_TYPE");
     }
-
-  
 
     // check for messages to send back to a user   !!!!!  TODO:   impliment QUEUE - FIFO not a stack
     if (postbox.length > 0) {

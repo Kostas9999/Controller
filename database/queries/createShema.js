@@ -127,4 +127,6 @@ module.exports = async function (hwuuid) {
     PRIMARY KEY (defaultGateway)
   )   ;
   `);
+
+  console.error("Build db completed for " + hwuuid);
 };

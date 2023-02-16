@@ -46,4 +46,8 @@ async function updateBaselineBuff(UID) {
   }
 }
 
-module.exports = { getBaselineBuff, updateBaselineBuff };
+async function clearBaselineBuffer(UID) {
+  baseLine[`${UID}`] = {};
+}
+
+module.exports = { getBaselineBuff, updateBaselineBuff, clearBaselineBuffer };
