@@ -41,7 +41,7 @@ async function passive(data) {
   }
 
   getBaselineBuff(data.UID).then((baseline) => {
-    if (typeof baseline.memorytotal != "undefined") {
+    if (baseline.memorytotal != null) {
       if (data.data.hardware.TotalMemory != baseline.memorytotal) {
         onEvent.onEvent({
           type: "MEM_TOT",
@@ -106,7 +106,7 @@ async function mid(data) {
 
 async function active(data) {
   getBaselineBuff(data.UID).then((baseline) => {
-    if (typeof baseline !== "undefined") {
+    if (baseline.localLatency != null) {
       if (data.data.memory > baseline.memoryuses_t) {
         onEvent.onEvent({
           type: "MEM_USE",
