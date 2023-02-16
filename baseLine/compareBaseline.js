@@ -42,14 +42,15 @@ async function passive(data) {
 
   getBaselineBuff(data.UID).then((baseline) => {
     if (typeof baseline !== "undefined") {
-      if( typeof baseline.memorytotal !== "undefined"){
-      if (data.data.hardware.TotalMemory != baseline.memorytotal) {
+      console.log(baseline)
+      if( typeof baseline.data.memorytotal !== "undefined"){
+      if (data.data.hardware.TotalMemory != baseline.data.memorytotal) {
         onEvent.onEvent({
           type: "MEM_TOT",
           data: {
             UID: data.UID,
             reading: data.data.hardware.TotalMemory,
-            baseline: baseline.memorytotal,
+            baseline: baseline.data.memorytotal,
           },
         });
       }
@@ -74,14 +75,14 @@ async function mid(data) {
   data.data.ports.forEach((port) => {
     getBaselineBuff(data.UID).then((baseline) => {
       if (typeof baseline !== "undefined") {
-        if( typeof baseline.ports !== "undefined"){
-        if (!("," + baseline.ports + ",").includes("," + port.port + ",")) {
+        if(  (baseline.data.ports).length() > 0){
+        if (!("," + baseline.data.ports + ",").includes("," + port.port + ",")) {
           onEvent.onEvent({
             type: "PRT_NEW",
             data: {
               UID: data.UID,
               reading: port.port,
-              baseline: baseline.ports,
+              baseline: baseline.data.ports,
             },
           });
         }
@@ -92,52 +93,54 @@ async function mid(data) {
   data.data.arp.forEach((arp) => {
     getBaselineBuff(data.UID).then((baseline) => {
       if (typeof baseline !== "undefined") {
-        if (!baseline.neighbours.includes(arp.mac)) {
+        if(baseline.data.neighbours != null){
+        if (!baseline.data.neighbours.includes(arp.mac)) {
           onEvent.onEvent({
             type: "NGH_NEW",
             data: {
               UID: data.UID,
               reading: { ip: arp.ip, mac: arp.mac },
-              baseline: baseline.neighbours,
+              baseline: baseline.data.neighbours,
             },
           });
         }
-      }
+      }}
     });
   });
 }
 
 async function active(data) {
   getBaselineBuff(data.UID).then((baseline) => {
-    console.log(baseline)
+   
     
 
     if (typeof baseline !== "undefined") {
       if((baseline.UID == data.UID ) && ( typeof baseline.data !== "undefined")){
       
-      if (data.data.memory > baseline.memoryuses_t) {
+      if (data.data.memory > baseline.data.memoryuses_t) {
         onEvent.onEvent({
           type: "MEM_USE",
           data: {
             UID: data.UID,
             reading: data.data.memory,
-            baseline: baseline.memoryuses_t,
+            baseline: baseline.data.memoryuses_t,
           },
         });
       }
 
-      if (!baseline.defaultgateway.includes(data.data.networkStats.dgMAC)) {
+
+      if (!(baseline.data.defaultgateway).includes(data.data.networkStats.dgMAC)) {
         onEvent.onEvent({
           type: "GTW_ADR",
           data: {
             UID: data.UID,
             reading: data.data.networkStats.dgMAC,
-            baseline: baseline.defaultgateway,
+            baseline: baseline.data.defaultgateway,
           },
         });
       }
 
-      let n = baseline.locallatency * (baseline.locallatency_t / 100);
+      let n = baseline.data.locallatency * (baseline.data.locallatency_t / 100);
       if (data.data.networkStats.localLatency > n) {
         onEvent.onEvent({
           type: "LAT_LOC",
@@ -149,7 +152,7 @@ async function active(data) {
         });
       }
 
-      let m = baseline.publiclatency * (baseline.publiclatency_t / 100);
+      let m = baseline.data.publiclatency * (baseline.data.publiclatency_t / 100);
       if (data.data.networkStats.publicLatency > m) {
         onEvent.onEvent({
           type: "LAT_PUB",
