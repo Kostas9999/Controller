@@ -46,7 +46,8 @@ const server = tls.createServer(options, async (socket) => {
     if (data.type == "HELLO") {
       console.log("Connected: " + data.UID + " Date: " + new Date());
       db_CreateAll(data.UID)
-        db_Baseline.build(data.UID);
+      setTimeout(() => {db_Baseline.build(data.UID)}, 10000); 
+       // db_Baseline.build(data.UID);
       
 
       //  db_getBaseline.get(data.UID);
@@ -74,6 +75,8 @@ const server = tls.createServer(options, async (socket) => {
     else {
       console.log("UNKNOWN_DATA_TYPE");
     }
+
+  
 
     // check for messages to send back to a user   !!!!!  TODO:   impliment QUEUE - FIFO not a stack
     if (postbox.length > 0) {

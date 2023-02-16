@@ -44,15 +44,17 @@ async function passive(data) {
 
   getBaselineBuff(data.UID).then((baseline) => {
     if (baseline.UID == data.UID && baseline.data) {
-      if (data.data.hardware.TotalMemory != baseline.data.memorytotal) {
-        onEvent.onEvent({
-          type: "MEM_TOT",
-          data: {
-            UID: data.UID,
-            reading: data.data.hardware.TotalMemory,
-            baseline: baseline.data.memorytotal,
-          },
-        });
+      if (baseline.data.memorytotal != null) {
+        if (data.data.hardware.TotalMemory != baseline.data.memorytotal) {
+          onEvent.onEvent({
+            type: "MEM_TOT",
+            data: {
+              UID: data.UID,
+              reading: data.data.hardware.TotalMemory,
+              baseline: baseline.data.memorytotal,
+            },
+          });
+        }
       }
     }
   });
@@ -75,17 +77,19 @@ async function mid(data) {
   data.data.ports.forEach((port) => {
     getBaselineBuff(data.UID).then((baseline) => {
       if (baseline.UID == data.UID && baseline.data) {
-        if (
-          !("," + baseline.data.ports + ",").includes("," + port.port + ",")
-        ) {
-          onEvent.onEvent({
-            type: "PRT_NEW",
-            data: {
-              UID: data.UID,
-              reading: port.port,
-              baseline: baseline.data.ports,
-            },
-          });
+        if (baseline.data.ports != null) {
+          if (
+            !("," + baseline.data.ports + ",").includes("," + port.port + ",")
+          ) {
+            onEvent.onEvent({
+              type: "PRT_NEW",
+              data: {
+                UID: data.UID,
+                reading: port.port,
+                baseline: baseline.data.ports,
+              },
+            });
+          }
         }
       }
     });
@@ -94,16 +98,17 @@ async function mid(data) {
   data.data.arp.forEach((arp) => {
     getBaselineBuff(data.UID).then((baseline) => {
       if (baseline.UID == data.UID && baseline.data) {
-        console.log(baseline);
-        if (!baseline.data.neighbours.includes(arp.mac)) {
-          onEvent.onEvent({
-            type: "NGH_NEW",
-            data: {
-              UID: data.UID,
-              reading: { ip: arp.ip, mac: arp.mac },
-              baseline: baseline.data.neighbours,
-            },
-          });
+        if (baseline.data.neighbours != null) {
+          if (!baseline.data.neighbours.includes(arp.mac)) {
+            onEvent.onEvent({
+              type: "NGH_NEW",
+              data: {
+                UID: data.UID,
+                reading: { ip: arp.ip, mac: arp.mac },
+                baseline: baseline.data.neighbours,
+              },
+            });
+          }
         }
       }
     });
@@ -137,29 +142,33 @@ async function active(data) {
         });
       }
 
-      let n = baseline.data.locallatency * (baseline.data.locallatency_t / 100);
-      if (data.data.networkStats.localLatency > n) {
-        onEvent.onEvent({
-          type: "LAT_LOC",
-          data: {
-            UID: data.UID,
-            reading: data.data.networkStats.localLatency,
-            baseline: n,
-          },
-        });
+      if (baseline.data.locallatency != null) {
+        let n =
+          baseline.data.locallatency * (baseline.data.locallatency_t / 100);
+        if (data.data.networkStats.localLatency > n) {
+          onEvent.onEvent({
+            type: "LAT_LOC",
+            data: {
+              UID: data.UID,
+              reading: data.data.networkStats.localLatency,
+              baseline: n,
+            },
+          });
+        }
       }
-
-      let m =
-        baseline.data.publiclatency * (baseline.data.publiclatency_t / 100);
-      if (data.data.networkStats.publicLatency > m) {
-        onEvent.onEvent({
-          type: "LAT_PUB",
-          data: {
-            UID: data.UID,
-            reading: data.data.networkStats.publicLatency,
-            baseline: m,
-          },
-        });
+      if (baseline.data.publiclatency != null) {
+        let m =
+          baseline.data.publiclatency * (baseline.data.publiclatency_t / 100);
+        if (data.data.networkStats.publicLatency > m) {
+          onEvent.onEvent({
+            type: "LAT_PUB",
+            data: {
+              UID: data.UID,
+              reading: data.data.networkStats.publicLatency,
+              baseline: m,
+            },
+          });
+        }
       }
 
       if (data.data.networkStats.rx_dropped) {
