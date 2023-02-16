@@ -1,9 +1,9 @@
 const { client } = require("../connections/db_pg_connection");
 
 module.exports = async function (hwuuid) {
-  //  connection.query(
+  //  client.query(
   //   ` INSERT INTO  groupproject.devices (id) VALUES(' ${hwuuid}'); `
-  // );
+ //  );
 
   await client.query(` CREATE schema IF NOT EXISTS "${hwuuid}";`);
 

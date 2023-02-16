@@ -35,8 +35,8 @@ module.exports = async function (data) {
       values_String = JSON.stringify(Object.values(data.data[key]));
       values_String = values_String
         .substring(1, values_String.length - 1)
-        .replaceAll('"', "' ");
-   
+        .replaceAll('"', "'");
+
       // db query
       // insert into "device id" as database, "key" for current table, stringifyed keys and values /// TODO: PREPARED STATAMENTS
       client.query(`SET search_path TO '${data.UID}';`);
