@@ -4,6 +4,8 @@ let baseLine = {};
 
 async function getBaselineBuff(UID) {
   if (typeof baseLine[`${UID}`] !== "undefined") {
+    console.log(baseLine[`${UID}`]);
+    console.log(UID);
     return baseLine[`${UID}`];
   } else {
     let data = await updateBaselineBuff(UID);
