@@ -4,9 +4,14 @@ let baseLine = {};
 
 async function getBaselineBuff(UID) {
   if (typeof baseLine[`${UID}`] !== "undefined") {
+    if (baseLine[`${UID}`].data == undefined) {
+      updateBaselineBuff(UID);
+    }
+
+    // console.log(UID);
     return baseLine[`${UID}`];
   } else {
-    client.query(`SET search_path TO '${UID}';`);
+    await client.query(`SET search_path TO '${UID}';`);
     rows_mac = await client.query(`SELECT dgmac FROM networkstats LIMIT 1`);
 
     if (rows_mac.rowCount == 0) {
@@ -17,10 +22,7 @@ async function getBaselineBuff(UID) {
         `SELECT * FROM baseline  where defaultgateway = '${rows_mac.rows[0].dgmac}' LIMIT 1`
       );
 
-      baseLine[`${UID}`] = {
-        UID,
-        data: rows_baseline.rows[0],
-      };
+      baseLine[`${UID}`] = undefined;
       return baseLine[`${UID}`];
     }
   }
@@ -47,7 +49,10 @@ async function updateBaselineBuff(UID) {
 }
 
 async function clearBaselineBuffer(UID) {
-  baseLine[`${UID}`] = {};
+  baseLine[`${UID}`] = {
+    UID,
+    data: undefined,
+  };
 }
 
 module.exports = { getBaselineBuff, updateBaselineBuff, clearBaselineBuffer };
