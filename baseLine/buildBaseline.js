@@ -12,10 +12,11 @@ async function build(UID) {
     );
   } else {
     mac = rows_mac.rows[0].dgmac;
+    await client.query(`SET search_path TO '${UID}';`);
     client.query(`
       INSERT INTO baseline (defaultgateway) VALUES ( '${mac}' )  
       ON CONFLICT DO NOTHING`);
-
+    await client.query(`SET search_path TO '${UID}';`);
     let rows = await client.query(`
                               SELECT collectedfrom ,collectionperiod, created - collectedFrom AS difference 
                               FROM baseline LIMIT 1;
@@ -28,8 +29,8 @@ async function build(UID) {
       console.log("Baseline is up to date");
     } else {
       console.log(`Updating baseline for ${UID} TIME: ${new Date()}`);
+      await client.query(`SET search_path TO '${UID}';`);
 
-      client.query(`SET search_path TO '${UID}';`);
       let rows_netStats = await client.query(`
         SELECT 
         AVG(memory)::numeric(10) AS memavg, 
@@ -51,8 +52,8 @@ async function build(UID) {
           SELECT totalmemory FROM hardware LIMIT 1
     `);
 
-      client.query(`SET search_path TO '${UID}';`);
-      client.query(`
+      await client.query(`SET search_path TO '${UID}';`);
+      await client.query(`
         UPDATE baseline SET 
         memorytotal='${rows_hw.rows[0].totalmemory}' 
         WHERE defaultgateway= '${mac}';
@@ -64,7 +65,7 @@ async function build(UID) {
         ports_nr.push(p.port);
       });
 
-      client.query(`
+      await client.query(`
         UPDATE baseline SET 
         ports='${ports_nr.toString()}' 
         WHERE defaultgateway= '${mac}';`);
@@ -75,7 +76,7 @@ async function build(UID) {
         neighbours.push(p.mac);
       });
 
-      client.query(`
+      await client.query(`
         UPDATE baseline SET 
         neighbours='${neighbours.toString()}' 
         WHERE defaultgateway= '${mac}';`);
