@@ -7,7 +7,7 @@ async function getBaselineBuff(UID) {
     return baseLine[`${UID}`];
   } else {
     let data = updateBaselineBuff(UID);
-    //  return data;
+    return data;
   }
 }
 
@@ -18,6 +18,7 @@ async function updateBaselineBuff(UID) {
   if (rows_mac.rows == 0) {
     return `Not enough data to update baseline for ${UID} TIME: ${new Date()}`;
   } else {
+    await client.query(`SET search_path TO '${UID}';`);
     rows_mac = await client.query(
       `SELECT * FROM baseline  where defaultgateway = '${rows_mac.rows[0].dgmac}' LIMIT 1`
     );
