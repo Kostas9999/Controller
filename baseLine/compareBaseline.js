@@ -109,9 +109,12 @@ async function mid(data) {
 
 async function active(data) {
   getBaselineBuff(data.UID).then((baseline) => {
+    console.log(baseline)
+    
 
     if (typeof baseline !== "undefined") {
-      console.log(baseline.memorytotal)
+      if((baseline.UID == data.UID ) && ( typeof baseline.data !== "undefined")){
+      
       if (data.data.memory > baseline.memoryuses_t) {
         onEvent.onEvent({
           type: "MEM_USE",
@@ -201,7 +204,7 @@ async function active(data) {
           },
         });
       }
-    }
+    }}
   });
 
   // console.log(data.data.networkStats.rx_dropped);
