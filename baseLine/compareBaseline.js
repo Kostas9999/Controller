@@ -106,7 +106,8 @@ async function mid(data) {
 
 async function active(data) {
   getBaselineBuff(data.UID).then((baseline) => {
-    if (baseline.localLatency != null) {
+    console.log(baseline)
+    if (typeof baseline.localLatency !== "undefined") {
       if (data.data.memory > baseline.memoryuses_t) {
         onEvent.onEvent({
           type: "MEM_USE",
