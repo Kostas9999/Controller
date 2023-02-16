@@ -29,7 +29,9 @@ async function updateBaselineBuff(UID) {
         `SELECT * FROM baseline  where defaultgateway = '${rows_mac.rows[0].dgmac}' LIMIT 1`
       );
 
-      baseLine[`${UID}`] = rows_mac.rows[0];
+      baseLine[`${UID}`] = { 
+        UID,
+        data:rows_mac.rows[0]};
       return rows_mac.rows[0];
     } catch (error) {
       console.log(error);

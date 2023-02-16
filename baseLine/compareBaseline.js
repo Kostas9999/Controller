@@ -75,9 +75,6 @@ async function mid(data) {
     getBaselineBuff(data.UID).then((baseline) => {
       if (typeof baseline !== "undefined") {
         if( typeof baseline.ports !== "undefined"){
-          console.log(data.UID)
-          console.log(typeof baseline.ports )
-          console.log(baseline.ports )
         if (!("," + baseline.ports + ",").includes("," + port.port + ",")) {
           onEvent.onEvent({
             type: "PRT_NEW",
