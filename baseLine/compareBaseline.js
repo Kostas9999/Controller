@@ -40,11 +40,10 @@ async function passive(data) {
     }
   }
 
+  // console.log(await getBaselineBuff(data.UID));
+
   getBaselineBuff(data.UID).then((baseline) => {
-    if (typeof baseline !== "undefined") {
-      if((baseline.UID == data.UID ) && ( typeof baseline.data !== "undefined")){
-      console.log(baseline)
-      if( typeof baseline.data.memorytotal !== "undefined"){
+    if (baseline.UID == data.UID && baseline.data) {
       if (data.data.hardware.TotalMemory != baseline.data.memorytotal) {
         onEvent.onEvent({
           type: "MEM_TOT",
@@ -56,9 +55,9 @@ async function passive(data) {
         });
       }
     }
-  }}
   });
 }
+
 async function mid(data) {
   data.data.disc.forEach((disc) => {
     if (disc.use > 85) {
@@ -75,10 +74,10 @@ async function mid(data) {
 
   data.data.ports.forEach((port) => {
     getBaselineBuff(data.UID).then((baseline) => {
-      if (typeof baseline !== "undefined") {
-        if((baseline.UID == data.UID ) && ( typeof baseline.data !== "undefined")){
-          console.log(baseline)
-        if (!("," + baseline.data.ports + ",").includes("," + port.port + ",")) {
+      if (baseline.UID == data.UID && baseline.data) {
+        if (
+          !("," + baseline.data.ports + ",").includes("," + port.port + ",")
+        ) {
           onEvent.onEvent({
             type: "PRT_NEW",
             data: {
@@ -88,14 +87,13 @@ async function mid(data) {
             },
           });
         }
-      }}//
+      }
     });
   });
 
   data.data.arp.forEach((arp) => {
     getBaselineBuff(data.UID).then((baseline) => {
-      if (typeof baseline !== "undefined") {
-        if(baseline.data.neighbours != null){
+      if (baseline.UID == data.UID && baseline.data) {
         if (!baseline.data.neighbours.includes(arp.mac)) {
           onEvent.onEvent({
             type: "NGH_NEW",
@@ -106,19 +104,14 @@ async function mid(data) {
             },
           });
         }
-      }}
+      }
     });
   });
 }
 
 async function active(data) {
   getBaselineBuff(data.UID).then((baseline) => {
-   
-    
-
-    if (typeof baseline !== "undefined") {
-      if((baseline.UID == data.UID ) && ( typeof baseline.data !== "undefined")){
-      
+    if (baseline.UID == data.UID && baseline.data) {
       if (data.data.memory > baseline.data.memoryuses_t) {
         onEvent.onEvent({
           type: "MEM_USE",
@@ -130,9 +123,9 @@ async function active(data) {
         });
       }
 
-if(typeof baseline.data.defaultgateway !== "undefined")
-{
-      if (!(baseline.data.defaultgateway).includes(data.data.networkStats.dgMAC)) {
+      if (
+        !baseline.data.defaultgateway.includes(data.data.networkStats.dgMAC)
+      ) {
         onEvent.onEvent({
           type: "GTW_ADR",
           data: {
@@ -141,7 +134,7 @@ if(typeof baseline.data.defaultgateway !== "undefined")
             baseline: baseline.data.defaultgateway,
           },
         });
-      }}
+      }
 
       let n = baseline.data.locallatency * (baseline.data.locallatency_t / 100);
       if (data.data.networkStats.localLatency > n) {
@@ -155,7 +148,8 @@ if(typeof baseline.data.defaultgateway !== "undefined")
         });
       }
 
-      let m = baseline.data.publiclatency * (baseline.data.publiclatency_t / 100);
+      let m =
+        baseline.data.publiclatency * (baseline.data.publiclatency_t / 100);
       if (data.data.networkStats.publicLatency > m) {
         onEvent.onEvent({
           type: "LAT_PUB",
@@ -210,10 +204,8 @@ if(typeof baseline.data.defaultgateway !== "undefined")
           },
         });
       }
-    }}
+    }
   });
-
-  // console.log(data.data.networkStats.rx_dropped);
 }
 /*
 
