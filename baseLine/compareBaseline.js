@@ -42,6 +42,7 @@ async function passive(data) {
 
   getBaselineBuff(data.UID).then((baseline) => {
     if (typeof baseline !== "undefined") {
+      if((baseline.UID == data.UID ) && ( typeof baseline.data !== "undefined")){
       console.log(baseline)
       if( typeof baseline.data.memorytotal !== "undefined"){
       if (data.data.hardware.TotalMemory != baseline.data.memorytotal) {
@@ -55,7 +56,7 @@ async function passive(data) {
         });
       }
     }
-  }
+  }}
   });
 }
 async function mid(data) {
@@ -75,7 +76,8 @@ async function mid(data) {
   data.data.ports.forEach((port) => {
     getBaselineBuff(data.UID).then((baseline) => {
       if (typeof baseline !== "undefined") {
-        if(  (baseline.data.ports).length() > 0){
+        if((baseline.UID == data.UID ) && ( typeof baseline.data !== "undefined")){
+          console.log(baseline)
         if (!("," + baseline.data.ports + ",").includes("," + port.port + ",")) {
           onEvent.onEvent({
             type: "PRT_NEW",
@@ -128,7 +130,8 @@ async function active(data) {
         });
       }
 
-
+if(typeof baseline.data.defaultgateway !== "undefined")
+{
       if (!(baseline.data.defaultgateway).includes(data.data.networkStats.dgMAC)) {
         onEvent.onEvent({
           type: "GTW_ADR",
@@ -138,7 +141,7 @@ async function active(data) {
             baseline: baseline.data.defaultgateway,
           },
         });
-      }
+      }}
 
       let n = baseline.data.locallatency * (baseline.data.locallatency_t / 100);
       if (data.data.networkStats.localLatency > n) {

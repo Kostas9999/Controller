@@ -4,16 +4,35 @@ let baseLine = {};
 
 async function getBaselineBuff(UID) {
   if (typeof baseLine[`${UID}`] !== "undefined") {
-    return baseLine[`${UID}`];
+
+    return baseLine[`${UID}`]  ={ 
+      UID,
+      data: baseLine[`${UID}`]
+    };
+
   } else {
-    let data = await updateBaselineBuff(UID);
-    return data;
+   
+      let data = await updateBaselineBuff(UID);
+      return data;
+      
+   
+   
   }
 }
 
 async function updateBaselineBuff(UID) {
+
+
   await client.query(`SET search_path TO '${UID}';`);
-  rows_mac = await client.query(`SELECT dgmac FROM networkstats LIMIT 1`);
+  try {
+    rows_mac = await  client.query(`SELECT dgmac FROM networkstats LIMIT 1`);
+  } catch (error) {
+    console.log(rows_mac)
+  }
+
+
+
+
 
   if (
     typeof rows_mac.rows[0] === "undefined" ||
