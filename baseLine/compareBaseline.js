@@ -14,7 +14,7 @@ async function passive(data) {
       };
     }
   }
-  if (typeof buff_passive.relese !== "undefined") {
+  if (typeof baseline !== "undefined") {
     if (buff_passive.relese != data.data.os.relese) {
       onEvent.onEvent({
         type: "OS_VER",
@@ -41,7 +41,8 @@ async function passive(data) {
   }
 
   getBaselineBuff(data.UID).then((baseline) => {
-    if (baseline.memorytotal != null) {
+    if (typeof baseline !== "undefined") {
+      if( typeof baseline.memorytotal !== "undefined"){
       if (data.data.hardware.TotalMemory != baseline.memorytotal) {
         onEvent.onEvent({
           type: "MEM_TOT",
@@ -53,6 +54,7 @@ async function passive(data) {
         });
       }
     }
+  }
   });
 }
 async function mid(data) {
@@ -72,6 +74,10 @@ async function mid(data) {
   data.data.ports.forEach((port) => {
     getBaselineBuff(data.UID).then((baseline) => {
       if (typeof baseline !== "undefined") {
+        if( typeof baseline.ports !== "undefined"){
+          console.log(data.UID)
+          console.log(typeof baseline.ports )
+          console.log(baseline.ports )
         if (!("," + baseline.ports + ",").includes("," + port.port + ",")) {
           onEvent.onEvent({
             type: "PRT_NEW",
@@ -82,7 +88,7 @@ async function mid(data) {
             },
           });
         }
-      }
+      }}//
     });
   });
 
@@ -106,8 +112,9 @@ async function mid(data) {
 
 async function active(data) {
   getBaselineBuff(data.UID).then((baseline) => {
-    console.log(baseline)
-    if (typeof baseline.localLatency !== "undefined") {
+
+    if (typeof baseline !== "undefined") {
+      console.log(baseline.memorytotal)
       if (data.data.memory > baseline.memoryuses_t) {
         onEvent.onEvent({
           type: "MEM_USE",
