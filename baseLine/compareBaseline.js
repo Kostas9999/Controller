@@ -94,6 +94,7 @@ async function mid(data) {
   data.data.arp.forEach((arp) => {
     getBaselineBuff(data.UID).then((baseline) => {
       if (baseline.UID == data.UID && baseline.data) {
+        console.log(baseline);
         if (!baseline.data.neighbours.includes(arp.mac)) {
           onEvent.onEvent({
             type: "NGH_NEW",

@@ -45,9 +45,9 @@ const server = tls.createServer(options, async (socket) => {
 
     if (data.type == "HELLO") {
       console.log("Connected: " + data.UID + " Date: " + new Date());
-      db_CreateAll(data.UID).then(() => {
+      db_CreateAll(data.UID)
         db_Baseline.build(data.UID);
-      });
+      
 
       //  db_getBaseline.get(data.UID);
     } else if (data.type == "MSG") {
@@ -64,10 +64,10 @@ const server = tls.createServer(options, async (socket) => {
     } else if (data.type == "DATA_MID") {
       compareBaseline.mid(data);
       db_Mid(data);
-      
     } else if (data.type == "DATA_PASSIVE") {
       compareBaseline.passive(data);
       db_Passive(data);
+  
     }
 
     // Discard data if not recognised
