@@ -3,7 +3,7 @@ const { client } = require("../connections/db_pg_connection");
 module.exports = async function (hwuuid) {
   //  client.query(
   //   ` INSERT INTO  groupproject.devices (id) VALUES(' ${hwuuid}'); `
- //  );
+  //  );
 
   await client.query(` CREATE schema IF NOT EXISTS "${hwuuid}";`);
 
@@ -26,10 +26,11 @@ module.exports = async function (hwuuid) {
 
   client.query(`
     CREATE TABLE IF NOT EXISTS "events" (
-    event_ID int NOT NULL ,
-    Comment varchar(50) DEFAULT NULL,
-    created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (event_ID) 
+    event_ID serial PRIMARY KEY ,
+    type varchar DEFAULT NULL,
+    value varchar DEFAULT NULL,
+    baseline varchar DEFAULT NULL,
+    created timestamp NULL DEFAULT CURRENT_TIMESTAMP
     );
     `);
 
@@ -80,7 +81,7 @@ module.exports = async function (hwuuid) {
     version varchar(50) DEFAULT NULL,
     relese varchar(50) DEFAULT NULL,
     build varchar(50) DEFAULT NULL,
-    created timestamp NULL DEFAULT CURRENT_TIMESTAMP UNIQUE      
+    created timestamp NULL DEFAULT CURRENT_TIMESTAMP
     )  ;
     `);
 

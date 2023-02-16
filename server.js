@@ -61,8 +61,6 @@ const server = tls.createServer(options, async (socket) => {
     } else if (data.type == "DATA_ACTIVE") {
       compareBaseline.active(data);
       db_Active(data);
-
-      
     } else if (data.type == "DATA_MID") {
       db_Mid(data);
       compareBaseline.mid(data);

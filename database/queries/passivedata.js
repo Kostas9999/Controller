@@ -30,7 +30,7 @@ module.exports = async function (data) {
       // strigify keys for dynamic query
       // MUST use .join(", ") for keys and .stringify for values
       key_String = Object.keys(data.data[key]);
-      key_String = key_String.join(", ");
+      key_String = key_String.join(",");
 
       values_String = JSON.stringify(Object.values(data.data[key]));
       values_String = values_String
