@@ -41,7 +41,7 @@ module.exports = async function (data) {
       // insert into "device id" as database, "key" for current table, stringifyed keys and values /// TODO: PREPARED STATAMENTS
       client.query(`SET search_path TO '${data.UID}';`);
       await client.query(
-        `INSERT INTO ${key} ( ${key_String} ) VALUES ( ${values_String} ) ;`
+        `INSERT INTO "${data.UID}"."${key}" ( ${key_String} ) VALUES ( ${values_String} ) ;`
       );
     }
   });

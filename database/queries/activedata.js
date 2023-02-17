@@ -12,35 +12,12 @@ module.exports = async function (data) {
   values_String = JSON.stringify(Object.values(data.data.networkStats));
 
   values_String = values_String
-          .substring(1, values_String.length - 1)
-          .replaceAll('"', "' ");
+    .substring(1, values_String.length - 1)
+    .replaceAll('"', "' ");
   //console.log(values_String);
   client.query(`SET search_path TO '${data.UID}';`);
 
-  await client.query( `INSERT INTO "networkstats" ( ${key_String} ) VALUES ( ${values_String}, '${data.data.cpu}' , '${data.data.memory}');`)
-  /*
-  try {
-    await promisePool.query(
-      `INSERT INTO "networkstats" ( ${key_String} ) VALUES (
-        '${values_String[0]}',
-        ${values_String[1]},
-        ${values_String[2]},
-        ${values_String[3]},
-        ${values_String[4]},
-        ${values_String[5]},
-        ${values_String[6]},
-        ${values_String[7]},
-        ${values_String[8]},
-        '${values_String[9]}',
-        '${values_String[10]}'
-
-        
-        , '${data.data.cpu}' , '${data.data.memory}' ) ;`
-    );
-  } catch (e) {
-    console.log(e);
-  }
-*/
-
-
+  await client.query(
+    `INSERT INTO "${data.UID}"."networkstats" ( ${key_String} ) VALUES ( ${values_String}, '${data.data.cpu}' , '${data.data.memory}');`
+  );
 };

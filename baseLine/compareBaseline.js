@@ -6,7 +6,9 @@ async function passive(data) {
   let buff_passive = {};
   if (Object.keys(buff_passive).length == 0) {
     await client.query(`SET search_path TO '${data.UID}';`);
-    let row = await client.query(`SELECT relese, build FROM os LIMIT 1`);
+    let row = await client.query(
+      `SELECT relese, build FROM "${data.UID}"."os" LIMIT 1`
+    );
     if (row.rows > 0) {
       buff_passive = {
         relese: row.rows[0].relese.trim(),

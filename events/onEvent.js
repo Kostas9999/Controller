@@ -1,10 +1,12 @@
 const { client } = require("../database/connections/db_pg_connection");
+let { clearBaselineBuffer } = require("../baseLine/getBaseline");
 let db_Baseline = require("../baseLine/buildBaseline");
 async function onEvent(event) {
   if (typeof event.data.baseline != "undefined") {
-  
     client.query(
-      `INSERT INTO  events (type, value, baseline) VALUES ( '${
+      `INSERT INTO  "${
+        event.data.UID
+      }"."events" (type, value, baseline) VALUES ( '${
         event.type
       }',  '${JSON.stringify(event.data.reading)}', '${event.data.baseline}');`
     );
@@ -38,12 +40,15 @@ async function onEvent(event) {
     //  console.log(event.type);
   } // public latency
   if (event.type == "GTW_ADR") {
+    clearBaselineBuffer(event.data.UID);
     db_Baseline.build(event.data.UID);
   } // gateway address has ben changed
   if (event.type == "NGH_NEW") {
+    clearBaselineBuffer(event.data.UID);
     db_Baseline.build(event.data.UID);
   } // new neighbour
   if (event.type == "PRT_NEW") {
+    clearBaselineBuffer(event.data.UID);
     db_Baseline.build(event.data.UID);
   } // new neighbour
   if (event.type == "RX_DRP") {

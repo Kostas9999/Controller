@@ -31,7 +31,7 @@ module.exports = async function (data) {
           client.query(`SET search_path TO '${data.UID}';`);
 
           client.query(
-            `INSERT INTO "ports" ( ${ports_keys}  ) VALUES (${values_String})  ON CONFLICT (port) DO UPDATE SET created = now();`
+            `INSERT INTO "${data.UID}"."ports" ( ${ports_keys}  ) VALUES (${values_String})  ON CONFLICT (port) DO UPDATE SET created = now();`
           );
         } catch (error) {
           console.log(error);
@@ -48,7 +48,7 @@ module.exports = async function (data) {
         try {
           client.query(`SET search_path TO '${data.UID}';`);
           await client.query(
-            `INSERT INTO "disc" (${disc_keys}  ) VALUES (${values_String})  ON CONFLICT (fs) DO UPDATE SET created = now();`
+            `INSERT INTO "${data.UID}"."disc" (${disc_keys}  ) VALUES (${values_String})  ON CONFLICT (fs) DO UPDATE SET created = now();`
           );
         } catch (error) {
           console.log(error);
@@ -64,7 +64,7 @@ module.exports = async function (data) {
         client.query(`SET search_path TO '${data.UID}';`);
         await client.query(
           //`REPLACE INTO ${data.UID}.${key} ( ${user_keys} ) VALUES (${values_String} );`
-          `INSERT INTO "${key}" ( ${user_keys} ) VALUES (${values_String})  ON CONFLICT (username) DO UPDATE SET created = now();`
+          `INSERT INTO "${data.UID}"."${key}" ( ${user_keys} ) VALUES (${values_String})  ON CONFLICT (username) DO UPDATE SET created = now();`
         );
       } catch (error) {
         console.log(" " + error);
@@ -80,7 +80,7 @@ module.exports = async function (data) {
         try {
           client.query(`SET search_path TO '${data.UID}';`);
           await client.query(
-            `INSERT INTO "arp" ( ${arp_keys} ) VALUES (${values_String})  ON CONFLICT (mac) DO UPDATE SET created = now();`
+            `INSERT INTO "${data.UID}"."arp" ( ${arp_keys} ) VALUES (${values_String})  ON CONFLICT (mac) DO UPDATE SET created = now();`
           );
         } catch (error) {
           console.log(" " + error);

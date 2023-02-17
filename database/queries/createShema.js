@@ -10,7 +10,7 @@ module.exports = async function (hwuuid) {
   await client.query(`SET search_path TO '${hwuuid}';`);
 
   client.query(`
-    CREATE TABLE IF NOT EXISTS "disc" (
+    CREATE TABLE IF NOT EXISTS "${hwuuid}"."disc" (
     fs varchar(50)   NOT NULL DEFAULT 'none',
     type varchar(50) DEFAULT NULL,
     size bigint DEFAULT NULL,
@@ -25,7 +25,7 @@ module.exports = async function (hwuuid) {
   `);
 
   client.query(`
-    CREATE TABLE IF NOT EXISTS "events" (
+    CREATE TABLE IF NOT EXISTS "${hwuuid}"."events" (
     event_ID serial PRIMARY KEY ,
     type varchar DEFAULT NULL,
     value varchar DEFAULT NULL,
@@ -35,7 +35,7 @@ module.exports = async function (hwuuid) {
     `);
 
   client.query(`
-    CREATE TABLE IF NOT EXISTS "hardware" (
+    CREATE TABLE IF NOT EXISTS "${hwuuid}"."hardware" (
     HWUUID varchar(50)  NOT NULL DEFAULT 'none',
     Title varchar(255) DEFAULT NULL,
     TotalMemory bigint DEFAULT NULL,
@@ -44,7 +44,7 @@ module.exports = async function (hwuuid) {
     `);
 
   client.query(`
-    CREATE TABLE IF NOT EXISTS "networkinterface" (
+    CREATE TABLE IF NOT EXISTS "${hwuuid}"."networkinterface" (
     iface varchar(50) DEFAULT NULL,
     speed int DEFAULT NULL,
     mac varchar(50) DEFAULT NULL,
@@ -57,7 +57,7 @@ module.exports = async function (hwuuid) {
   `);
 
   client.query(`
-    CREATE TABLE IF NOT EXISTS "networkstats" (
+    CREATE TABLE IF NOT EXISTS "${hwuuid}"."networkstats" (
     iface varchar(50)  DEFAULT NULL,
     rx_total bigint DEFAULT '0',
     rx_dropped bigint DEFAULT '0',
@@ -76,7 +76,7 @@ module.exports = async function (hwuuid) {
     `);
 
   client.query(`
-    CREATE TABLE IF NOT EXISTS "os" (
+    CREATE TABLE IF NOT EXISTS "${hwuuid}"."os" (
     hostname varchar(50) DEFAULT NULL,
     version varchar(50) DEFAULT NULL,
     relese varchar(50) DEFAULT NULL,
@@ -86,7 +86,7 @@ module.exports = async function (hwuuid) {
     `);
 
   client.query(`
-    CREATE TABLE IF NOT EXISTS "ports" (
+    CREATE TABLE IF NOT EXISTS "${hwuuid}"."ports" (
     port int DEFAULT NULL UNIQUE,
     processName varchar(255)  DEFAULT NULL,
     PID int DEFAULT NULL,
@@ -95,14 +95,14 @@ module.exports = async function (hwuuid) {
   )  ;`);
 
   client.query(`
-    CREATE TABLE IF NOT EXISTS "user" (
+    CREATE TABLE IF NOT EXISTS "${hwuuid}"."user" (
     username varchar(50)   NOT NULL DEFAULT 'none' UNIQUE,
     loginTime varchar(50) DEFAULT NULL,     
     created timestamp NULL DEFAULT CURRENT_TIMESTAMP
     ) ;`);
 
   client.query(`
-    CREATE TABLE IF NOT EXISTS "arp" (
+    CREATE TABLE IF NOT EXISTS "${hwuuid}"."arp" (
     ip varchar(50)   NOT NULL DEFAULT 'none' UNIQUE,      
     mac varchar(50) DEFAULT NULL UNIQUE,   
     type varchar(50) DEFAULT NULL,   
@@ -110,7 +110,7 @@ module.exports = async function (hwuuid) {
     ) ;`);
 
   client.query(`
-    CREATE TABLE IF NOT EXISTS "baseline" (
+    CREATE TABLE IF NOT EXISTS "${hwuuid}"."baseline" (
     memoryTotal bigint DEFAULT NULL,
     memoryUses int DEFAULT NULL,
     memoryuses_t BIGINT default 80,

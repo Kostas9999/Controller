@@ -11,15 +11,17 @@ async function getBaselineBuff(UID) {
     // console.log(UID);
     return baseLine[`${UID}`];
   } else {
-    await client.query(`SET search_path TO '${UID}';`);
-    rows_mac = await client.query(`SELECT dgmac FROM networkstats LIMIT 1`);
+    await client.query(`SET search_path TO "${UID}";`);
+    rows_mac = await client.query(
+      `SELECT dgmac FROM "${UID}"."networkstats" LIMIT 1`
+    );
 
     if (rows_mac.rowCount == 0) {
       return `Not enough data to update baseline for ${UID} TIME: ${new Date()}`;
     } else {
       await client.query(`SET search_path TO '${UID}';`);
       rows_baseline = await client.query(
-        `SELECT * FROM baseline  where defaultgateway = '${rows_mac.rows[0].dgmac}' LIMIT 1`
+        `SELECT * FROM "${UID}"."baseline"  where defaultgateway = '${rows_mac.rows[0].dgmac}' LIMIT 1`
       );
 
       baseLine[`${UID}`] = undefined;
@@ -30,14 +32,16 @@ async function getBaselineBuff(UID) {
 
 async function updateBaselineBuff(UID) {
   client.query(`SET search_path TO '${UID}';`);
-  rows_mac = await client.query(`SELECT dgmac FROM networkstats LIMIT 1`);
+  rows_mac = await client.query(
+    `SELECT dgmac FROM "${UID}"."networkstats" LIMIT 1`
+  );
 
   if (rows_mac.rowCount == 0) {
     return `Not enough data to update baseline for ${UID} TIME: ${new Date()}`;
   } else {
     await client.query(`SET search_path TO '${UID}';`);
     rows_baseline = await client.query(
-      `SELECT * FROM baseline  where defaultgateway = '${rows_mac.rows[0].dgmac}' LIMIT 1`
+      `SELECT * FROM "${UID}"."baseline"  where defaultgateway = '${rows_mac.rows[0].dgmac}' LIMIT 1`
     );
 
     baseLine[`${UID}`] = {
