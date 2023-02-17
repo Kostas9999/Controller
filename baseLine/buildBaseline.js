@@ -99,27 +99,6 @@ async function build(UID) {
           UPDATE "${UID}"."baseline" SET 
           neighbours='${neigh_base_str}' 
           WHERE defaultgateway= '${mac}';`);
-
-      /*
-      let rows_neighbours = await client.query(`SELECT mac FROM arp`);
-      let neighbours = [];
-      rows_neighbours.rows.forEach((p) => {
-        neighbours.push(p.mac);
-      });
-
-
-      // neighbours
-
-      let neigh_base = await client.query(
-        `SELECT ports FROM "${UID}"."baseline" WHERE defaultgateway= '${mac}' `
-      );
-
-
-      await client.query(`
-        UPDATE "${UID}"."baseline" SET 
-        neighbours='${neighbours.toString()}' 
-        WHERE defaultgateway= '${mac}';`);
-    */
     }
     console.log(
       `Updating baseline for ${UID} completed at TIME: ${new Date()}`
