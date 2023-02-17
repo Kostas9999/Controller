@@ -1,16 +1,19 @@
 const { client } = require("../database/connections/db_pg_connection");
 async function onEvent(event) {
-  client.query(
-    `INSERT INTO  events (type, value, baseline) VALUES ( '${
-      event.type
-    }',  '${JSON.stringify(event.data.reading)}', '${event.data.baseline}');`
-  );
+  if (event.baseline != " ,") {
+    console.log("here");
+    client.query(
+      `INSERT INTO  events (type, value, baseline) VALUES ( '${
+        event.type
+      }',  '${JSON.stringify(event.data.reading)}', '${event.data.baseline}');`
+    );
 
-  console.log(
-    `TYPE: ${event.type} VALUE: ${JSON.stringify(
-      event.data.reading
-    )} BASELINE: ${event.data.baseline}, DEVICE: ${event.data.UID} `
-  );
+    console.log(
+      `TYPE: ${event.type} VALUE: ${JSON.stringify(
+        event.data.reading
+      )} BASELINE: ${event.data.baseline}, DEVICE: ${event.data.UID} `
+    );
+  }
 
   //passive
   if (event.type == "OS_VER") {
