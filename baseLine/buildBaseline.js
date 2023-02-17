@@ -59,11 +59,29 @@ async function build(UID) {
         WHERE defaultgateway= '${mac}';
     `);
 
+      let ports_base = await client.query(
+        `SELECT ports FROM baseline WHERE defaultgateway= '${mac}' `
+      );
+
       let rows_ports = await client.query(`SELECT port FROM ports`);
       let ports_nr = [];
       rows_ports.rows.forEach((p) => {
-        ports_nr.push(p.port);
+        if (
+          !("," + ports_base.rows[0].ports + ",").includes("," + p.port + ",")
+        ) {
+          console.log(`${p.port} - Port added to baseline`);
+          ports_nr.push(p.port);
+        }
       });
+
+      console.log("===============");
+
+      console.log(ports_nr);
+      //    console.log(rows_ports.rows);
+
+      //  if (
+      //   !("," + baseline.data.ports + ",").includes("," + port.port + ",")
+      //  ) {}
 
       await client.query(`
         UPDATE baseline SET 
