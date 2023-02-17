@@ -74,7 +74,7 @@ async function build(UID) {
         }
       });
 
-      console.log("===============");
+      console.log("=============== is it added? ");
 
       console.log(ports_nr);
       //    console.log(rows_ports.rows);
