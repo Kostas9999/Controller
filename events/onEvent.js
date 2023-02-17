@@ -1,7 +1,7 @@
 const { client } = require("../database/connections/db_pg_connection");
 let db_Baseline = require("../baseLine/buildBaseline");
 async function onEvent(event) {
-  if (typeof event.baseline != "undefined") {
+  if (typeof event.data.baseline != "undefined") {
   
     client.query(
       `INSERT INTO  events (type, value, baseline) VALUES ( '${
@@ -38,13 +38,13 @@ async function onEvent(event) {
     //  console.log(event.type);
   } // public latency
   if (event.type == "GTW_ADR") {
-    db_Baseline.build(event.device);
+    db_Baseline.build(event.data.UID);
   } // gateway address has ben changed
   if (event.type == "NGH_NEW") {
-    db_Baseline.build(event.device);
+    db_Baseline.build(event.data.UID);
   } // new neighbour
   if (event.type == "PRT_NEW") {
-    db_Baseline.build(event.device);
+    db_Baseline.build(event.data.UID);
   } // new neighbour
   if (event.type == "RX_DRP") {
     // console.log(event.type);
