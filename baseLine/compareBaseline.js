@@ -53,7 +53,7 @@ async function passive(data) {
             data: {
               UID: data.UID,
               reading: data.data.hardware.TotalMemory,
-              baseline: baseline.data.memorytotal,
+              baseline: JSON.stringify(baseline),
             },
           });
         }
