@@ -9,7 +9,6 @@ let d = {
   baseline: "event.data.baseLine",
 };
 
-sendMail("e368b009_dc92_11e5_9c43_bc00000c0000", "PRT_NEW", d);
 async function sendMail(receiver, subject, data) {
   let to = await solveEmail(receiver);
   let text = await solveText(subject, data);
@@ -64,4 +63,4 @@ async function sendMail(receiver, subject, text) {
 }
 */
 
-//module.exports = { sendMail };
+module.exports = { sendMail };
