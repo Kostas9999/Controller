@@ -2,13 +2,6 @@ const mailtransporter = require("./connectGmail");
 const { solveEmail } = require("./solveReceiver");
 const { solveText } = require("./solveData");
 
-//console.log(solveEmail("e368b009_dc92_11e5_9c43_bc00000c00008"));
-
-let d = {
-  reading: "event.data.reading",
-  baseline: "event.data.baseLine",
-};
-
 async function sendMail(receiver, subject, data) {
   let to = await solveEmail(receiver);
   let text = await solveText(subject, data);
@@ -18,7 +11,7 @@ async function sendMail(receiver, subject, data) {
       from: "monTool",
       to: to.email,
       subject: `${subject} - ${JSON.stringify(data.reading)}`,
-      text: `${JSON.stringify(text)}`,
+      text: `${JSON.stringify(text)}  \nDevice: ${receiver}`,
     };
 
     mailtransporter.transporter.sendMail(mailDetails, function (err, data) {
