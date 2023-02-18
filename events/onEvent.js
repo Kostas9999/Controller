@@ -1,6 +1,7 @@
 const { client } = require("../database/connections/db_pg_connection");
 let { clearBaselineBuffer } = require("../baseLine/getBaseline");
 let db_Baseline = require("../baseLine/buildBaseline");
+const { sendMail } = require("../email/email");
 async function onEvent(event) {
   if (typeof event.data.baseline != "undefined") {
     client.query(
@@ -46,10 +47,18 @@ async function onEvent(event) {
   if (event.type == "NGH_NEW") {
     clearBaselineBuffer(event.data.UID);
     db_Baseline.build(event.data.UID);
+    sendMail(event.data.UID, event.type, {
+      rading: event.data.reading,
+      baseline: event.data.baseLine,
+    });
   } // new neighbour
   if (event.type == "PRT_NEW") {
     clearBaselineBuffer(event.data.UID);
     db_Baseline.build(event.data.UID);
+    sendMail(event.data.UID, event.type, {
+      rading: event.data.reading,
+      baseline: event.data.baseLine,
+    });
   } // new neighbour
   if (event.type == "RX_DRP") {
     // console.log(event.type);
