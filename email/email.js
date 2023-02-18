@@ -1,7 +1,37 @@
 const mailtransporter = require("./connectGmail");
+const { solveEmail } = require("./solveReceiver");
+const { solveText } = require("./solveData");
 
-let coolDownTimer = 60000;
-let mailSentAt = 0;
+//console.log(solveEmail("e368b009_dc92_11e5_9c43_bc00000c00008"));
+
+let d = {
+  reading: "event.data.reading",
+  baseline: "event.data.baseLine",
+};
+
+sendMail("e368b009_dc92_11e5_9c43_bc00000c0000", "PRT_NEW", d);
+async function sendMail(receiver, subject, data) {
+  let to = await solveEmail(receiver);
+  let text = await solveText(subject, data);
+
+  if (to.email != "none" && to.emailpref.includes(subject)) {
+    let mailDetails = {
+      from: "monTool",
+      to: to.email,
+      subject: `${subject} - ${JSON.stringify(data.reading)}`,
+      text: `${JSON.stringify(text)}`,
+    };
+
+    mailtransporter.transporter.sendMail(mailDetails, function (err, data) {
+      if (err) {
+        console.log("Error Occurs");
+      } else {
+        console.log("Email sent successfully");
+      }
+    });
+  }
+}
+/*
 
 async function sendMail(receiver, subject, text) {
   console.log(
@@ -10,7 +40,7 @@ async function sendMail(receiver, subject, text) {
 
   if (new Date() - mailSentAt > coolDownTimer) {
     mailSentAt = new Date();
-    solveReceiver(receiver).then((mail) => {
+    solveReceiverr(receiver).then((mail) => {
       let mailDetails = {
         from: "monToolB00148740@gmail.com",
         to: mail,
@@ -18,6 +48,9 @@ async function sendMail(receiver, subject, text) {
         text: `${JSON.stringify(text)}`,
       };
 
+      console.log(mailDetails);
+
+     
       mailtransporter.transporter.sendMail(mailDetails, function (err, data) {
         if (err) {
           console.log("Error Occurs");
@@ -25,12 +58,10 @@ async function sendMail(receiver, subject, text) {
           console.log("Email sent successfully");
         }
       });
+     
     });
   }
 }
-async function solveReceiver(receiver) {
-  // connect to db to get email by device ID
-  return "goldiskiker@gmail.com";
-}
+*/
 
-module.exports = { sendMail };
+//module.exports = { sendMail };

@@ -48,7 +48,7 @@ async function onEvent(event) {
     clearBaselineBuffer(event.data.UID);
     db_Baseline.build(event.data.UID);
     sendMail(event.data.UID, event.type, {
-      rading: event.data.reading,
+      reading: event.data.reading,
       baseline: event.data.baseLine,
     });
   } // new neighbour
@@ -56,7 +56,7 @@ async function onEvent(event) {
     clearBaselineBuffer(event.data.UID);
     db_Baseline.build(event.data.UID);
     sendMail(event.data.UID, event.type, {
-      rading: event.data.reading,
+      reading: event.data.reading,
       baseline: event.data.baseLine,
     });
   } // new neighbour
