@@ -29,6 +29,7 @@ async function getBaselineBuff(UID) {
     }
   }
 }
+// TODO: remove code dublication as moved to single function
 
 async function updateBaselineBuff(UID) {
   client.query(`SET search_path TO '${UID}';`);

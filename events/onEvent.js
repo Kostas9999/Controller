@@ -2,6 +2,16 @@ const { client } = require("../database/connections/db_pg_connection");
 let { clearBaselineBuffer } = require("../baseLine/getBaseline");
 let db_Baseline = require("../baseLine/buildBaseline");
 const { sendMail } = require("../email/email");
+
+let suppressEvent = {};
+// {
+// uid:  device id {
+//        type: type of event eg. "MEM_TOT"
+//        time: time taken
+//        timeout: turn of duration to suppress [0 = forever (until reset)]
+//            }
+// }
+
 async function onEvent(event) {
   if (typeof event.data.baseline != "undefined") {
     client.query(
@@ -35,6 +45,14 @@ async function onEvent(event) {
     //  console.log(event.type);
   } // high memory usage
   if (event.type == "LAT_LOC") {
+    suppressEvent[`${event.data.UID}`] = {
+      UID: event.data.UID,
+      settings: {
+        type: event.type,
+        time: new Date.now(),
+        timeout: 60000,
+      },
+    };
     //  console.log(event.type);
   } // local latency
   if (event.type == "LAT_PUB") {
