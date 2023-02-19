@@ -1,0 +1,8 @@
+Bug
+=====================
+1 total memory is cathced from other device only when comparing for event (might be buffer object)
+2 Double data send (two emails received, double entries in database)
+
+changes
+=====================
+track applications, not porsts as same app may open different port every restart
