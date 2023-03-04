@@ -29,9 +29,11 @@ module.exports = async function (data) {
 
         try {
           client.query(`SET search_path TO '${data.UID}';`);
+        
 
           client.query(
-            `INSERT INTO "${data.UID}"."ports" ( ${ports_keys}  ) VALUES (${values_String})  ON CONFLICT (port) DO UPDATE SET (${ports_keys}, created) = ( ${values_String}, now();`
+            
+            `INSERT INTO "${data.UID}"."ports" ( ${ports_keys}  ) VALUES (${values_String})  ON CONFLICT (port) DO UPDATE SET (${ports_keys}, created) = ( ${values_String}, now());`
           );
         } catch (error) {
           console.log(error);
