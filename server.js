@@ -10,11 +10,7 @@ let db_Baseline = require("./baseLine/buildBaseline");
 let compareBaseline = require("./baseLine/compareBaseline");
 let { clearBaselineBuffer } = require("./baseLine/getBaseline");
 
-let postbox = [
-  //{ task: "EXEC", msg: "ping 8.8.8.8", ID: 1 },
-  // { type: "GET", msg: "PASSIVEDATA", ID: 2 },
-  // { type: "EXEC", msg: "taskkill /PID 11012 /F", ID: 3 },
-];
+let postbox = [];
 //
 
 const options = {
@@ -27,8 +23,7 @@ const options = {
 };
 
 const server = tls.createServer(options, async (socket) => {
-  socket.setTimeout(3, () => socket.destroy());
-  //console.log(socket);
+
   console.log(
     "Server connected",
     socket.authorized ? "authorized" : "unauthorized"
@@ -47,7 +42,7 @@ const server = tls.createServer(options, async (socket) => {
     // Sort data by its type
 
     if (data.type == "HELLO") {
-      //console.log("Connected: " + data.UID + " Date: " + new Date());
+      console.log("Connected: " + data.UID + " Date: " + new Date());
 
       clearBaselineBuffer(data.UID);
       db_CreateAll(data.UID);
@@ -68,6 +63,19 @@ const server = tls.createServer(options, async (socket) => {
     } else if (data.type == "DATA_ACTIVE") {
       compareBaseline.active(data);
       db_Active(data);
+      let str = JSON.stringify({type: "POSTBOX", data: postbox[data.UID]});
+      socket.write(str);
+
+      if(typeof postbox[data.UID] !== 'undefined' )
+      {
+        //verify user is he entitled to execute command on this device
+        console.log(postbox[data.UID]);
+        let str = JSON.stringify({type: "POSTBOX", data:  { type: "EXEC", data:postbox[data.UID]}});
+        socket.write(str);
+        postbox[data.UID] = undefined;        
+        ;}
+      
+      
     } else if (data.type == "DATA_MID") {
       compareBaseline.mid(data);
       db_Mid(data);
@@ -75,7 +83,10 @@ const server = tls.createServer(options, async (socket) => {
       compareBaseline.passive(data);
       db_Passive(data);
     } else if (data.type == "EXEC") {
-      console.log(data.data);
+      let innerData = JSON.parse(data.data)
+
+      postbox[innerData.device] = data.data;
+      console.log(postbox);
       socket.destroy();
       socket.end();
     }
