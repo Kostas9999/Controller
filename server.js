@@ -27,6 +27,8 @@ const options = {
 };
 
 const server = tls.createServer(options, async (socket) => {
+  socket.setTimeout(3, () => socket.destroy());
+  //console.log(socket);
   console.log(
     "Server connected",
     socket.authorized ? "authorized" : "unauthorized"
@@ -45,7 +47,8 @@ const server = tls.createServer(options, async (socket) => {
     // Sort data by its type
 
     if (data.type == "HELLO") {
-      console.log("Connected: " + data.UID + " Date: " + new Date());
+      //console.log("Connected: " + data.UID + " Date: " + new Date());
+
       clearBaselineBuffer(data.UID);
       db_CreateAll(data.UID);
       setTimeout(() => {
@@ -71,6 +74,10 @@ const server = tls.createServer(options, async (socket) => {
     } else if (data.type == "DATA_PASSIVE") {
       compareBaseline.passive(data);
       db_Passive(data);
+    } else if (data.type == "EXEC") {
+      console.log(data.data);
+      socket.destroy();
+      socket.end();
     }
 
     // Discard data if not recognised
