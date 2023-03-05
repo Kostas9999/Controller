@@ -78,7 +78,7 @@ async function mid(data) {
 
   data.data.ports.forEach((port) => {
     getBaselineBuff(data.UID).then((baseline) => {
-      if (baseline.UID == data.UID && baseline.data) {
+      if (baseline?.UID == data?.UID && baseline?.data) {
         if (baseline.data.ports != null) {
           if (
             !("," + baseline.data.ports + ",").includes("," + port.port + ",")

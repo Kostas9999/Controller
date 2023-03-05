@@ -3,6 +3,7 @@ const { client } = require("../database/connections/db_pg_connection");
 async function build(UID) {
   let mac;
 
+
   // await client.query(`SET search_path TO '${UID}';`);
   rows_mac = await client.query(
     `SELECT dgmac FROM "${UID}"."networkstats" ORDER BY created DESC LIMIT 1`

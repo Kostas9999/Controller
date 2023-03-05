@@ -22,11 +22,13 @@ async function onEvent(event) {
       }',  '${JSON.stringify(event.data.reading)}', '${event.data.baseline}');`
     );
 
+    /*
     console.log(
       `TYPE: ${event.type} VALUE: ${JSON.stringify(
         event.data.reading
       )} BASELINE: ${event.data.baseline}, DEVICE: ${event.data.UID} `
     );
+    */
   }
 
   //passive
@@ -34,25 +36,44 @@ async function onEvent(event) {
     /// console.log(`Type: ${event.type} Readings: ${event.data.readings} baseline: ${event.data.readings}, DEVICE: ${event.data.UID} `);
   }
   if (event.type == "MEM_TOT") {
-    // console.log(event.type);
+    if (
+      suppressEvent[event.data.UID]?.mem_tot === undefined ||
+      suppressEvent[event.data.UID]?.mem_tot != event.type
+    ) {
+      suppressEvent[event.data.UID] = { mem_tot: event.data.reading };
+      sendMail(event.data.UID, event.type, {
+        reading: event.data.reading,
+        baseline: event.data.baseline,
+      });
+    }
   } // changes in RAM size
 
   if (event.type == "DSC_FULL") {
-    //  console.log(event.type);
+    if (
+      suppressEvent[event.data.UID]?.dsk_full === undefined ||
+      suppressEvent[event.data.UID]?.dsk_full < event.type
+    ) {
+      suppressEvent[event.data.UID] = { dsk_full: event.data.reading };
+      sendMail(event.data.UID, event.type, {
+        reading: event.data.reading,
+        baseline: event.data.baseline,
+      });
+    }
   } // hardrive is nearly full
 
   if (event.type == "MEM_USE") {
-    //  console.log(event.type);
+    if (
+      suppressEvent[event.data.UID]?.mem_use === undefined ||
+      suppressEvent[event.data.UID]?.mem_use < event.type
+    ) {
+      suppressEvent[event.data.UID] = { mem_use: event.data.reading };
+      sendMail(event.data.UID, event.type, {
+        reading: event.data.reading,
+        baseline: event.data.baseline,
+      });
+    }
   } // high memory usage
   if (event.type == "LAT_LOC") {
-    suppressEvent[`${event.data.UID}`] = {
-      UID: event.data.UID,
-      settings: {
-        type: event.type,
-       // time: new Date.now(),
-        timeout: 60000,
-      },
-    };
     //  console.log(event.type);
   } // local latency
   if (event.type == "LAT_PUB") {
@@ -61,13 +82,17 @@ async function onEvent(event) {
   if (event.type == "GTW_ADR") {
     clearBaselineBuffer(event.data.UID);
     db_Baseline.build(event.data.UID);
+    sendMail(event.data.UID, event.type, {
+      reading: event.data.reading,
+      baseline: event.data.baseline,
+    });
   } // gateway address has ben changed
   if (event.type == "NGH_NEW") {
     clearBaselineBuffer(event.data.UID);
     db_Baseline.build(event.data.UID);
     sendMail(event.data.UID, event.type, {
       reading: event.data.reading,
-      baseline: event.data.baseLine,
+      baseline: event.data.baseline,
     });
   } // new neighbour
   if (event.type == "PRT_NEW") {
@@ -75,20 +100,56 @@ async function onEvent(event) {
     db_Baseline.build(event.data.UID);
     sendMail(event.data.UID, event.type, {
       reading: event.data.reading,
-      baseline: event.data.baseLine,
+      baseline: event.data.baseline,
     });
   } // new neighbour
   if (event.type == "RX_DRP") {
-    // console.log(event.type);
+    if (
+      suppressEvent[event.data.UID]?.rx_drop === undefined ||
+      suppressEvent[event.data.UID]?.rx_drop < event.type
+    ) {
+      suppressEvent[event.data.UID] = { rx_drop: event.data.reading };
+      sendMail(event.data.UID, event.type, {
+        reading: event.data.reading,
+        baseline: event.data.baseline,
+      });
+    }
   }
   if (event.type == "RX_ERR") {
-    //  console.log(event.type);
+    if (
+      suppressEvent[event.data.UID]?.rx_error === undefined ||
+      suppressEvent[event.data.UID]?.rx_error < event.type
+    ) {
+      suppressEvent[event.data.UID] = { rx_error: event.data.reading };
+      sendMail(event.data.UID, event.type, {
+        reading: event.data.reading,
+        baseline: event.data.baseline,
+      });
+    }
   }
   if (event.type == "TX_DRP") {
-    //  console.log(event.type);
+    if (
+      suppressEvent[event.data.UID]?.tx_drop === undefined ||
+      suppressEvent[event.data.UID]?.tx_drop < event.type
+    ) {
+      suppressEvent[event.data.UID] = { tx_drop: event.data.reading };
+      sendMail(event.data.UID, event.type, {
+        reading: event.data.reading,
+        baseline: event.data.baseline,
+      });
+    }
   }
   if (event.type == "TX_ERR") {
-    //  console.log(event.type);
+    if (
+      suppressEvent[event.data.UID]?.tx_error === undefined ||
+      suppressEvent[event.data.UID]?.tx_error < event.type
+    ) {
+      suppressEvent[event.data.UID] = { tx_error: event.data.reading };
+      sendMail(event.data.UID, event.type, {
+        reading: event.data.reading,
+        baseline: event.data.baseline,
+      });
+    }
   }
 }
 
