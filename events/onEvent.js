@@ -49,7 +49,7 @@ async function onEvent(event) {
       UID: event.data.UID,
       settings: {
         type: event.type,
-        time: new Date.now(),
+       // time: new Date.now(),
         timeout: 60000,
       },
     };
