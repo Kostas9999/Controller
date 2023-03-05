@@ -15,6 +15,7 @@ async function onEvent(event) {
       suppressEvent[event.data.UID]?.mem_tot === undefined ||
       suppressEvent[event.data.UID]?.mem_tot != event.type
     ) {
+      addToDatabase(event);
       suppressEvent[event.data.UID] = { mem_tot: event.data.reading };
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
@@ -28,6 +29,7 @@ async function onEvent(event) {
       suppressEvent[event.data.UID]?.dsk_full === undefined ||
       suppressEvent[event.data.UID]?.dsk_full < event.type
     ) {
+      addToDatabase(event);
       suppressEvent[event.data.UID] = { dsk_full: event.data.reading };
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
@@ -41,6 +43,7 @@ async function onEvent(event) {
       suppressEvent[event.data.UID]?.mem_use === undefined ||
       suppressEvent[event.data.UID]?.mem_use < event.type
     ) {
+      addToDatabase(event);
       suppressEvent[event.data.UID] = { mem_use: event.data.reading };
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
@@ -49,12 +52,13 @@ async function onEvent(event) {
     }
   } // high memory usage
   if (event.type == "LAT_LOC") {
-    //  console.log(event.type);
+    addToDatabase(event);
   } // local latency
   if (event.type == "LAT_PUB") {
-    //  console.log(event.type);
+    addToDatabase(event);
   } // public latency
   if (event.type == "GTW_ADR") {
+    addToDatabase(event);
     clearBaselineBuffer(event.data.UID);
     db_Baseline.build(event.data.UID);
     sendMail(event.data.UID, event.type, {
@@ -63,6 +67,7 @@ async function onEvent(event) {
     });
   } // gateway address has ben changed
   if (event.type == "NGH_NEW") {
+    addToDatabase(event);
     clearBaselineBuffer(event.data.UID);
     db_Baseline.build(event.data.UID);
     sendMail(event.data.UID, event.type, {
@@ -71,6 +76,7 @@ async function onEvent(event) {
     });
   } // new neighbour
   if (event.type == "PRT_NEW") {
+    addToDatabase(event);
     clearBaselineBuffer(event.data.UID);
     db_Baseline.build(event.data.UID);
     sendMail(event.data.UID, event.type, {
@@ -96,6 +102,7 @@ async function onEvent(event) {
       suppressEvent[event.data.UID]?.rx_error === undefined ||
       suppressEvent[event.data.UID]?.rx_error < event.type
     ) {
+      addToDatabase(event);
       suppressEvent[event.data.UID] = { rx_error: event.data.reading };
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
@@ -108,6 +115,7 @@ async function onEvent(event) {
       suppressEvent[event.data.UID]?.tx_drop === undefined ||
       suppressEvent[event.data.UID]?.tx_drop < event.type
     ) {
+      addToDatabase(event);
       suppressEvent[event.data.UID] = { tx_drop: event.data.reading };
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
@@ -120,6 +128,7 @@ async function onEvent(event) {
       suppressEvent[event.data.UID]?.tx_error === undefined ||
       suppressEvent[event.data.UID]?.tx_error < event.type
     ) {
+      addToDatabase(event);
       suppressEvent[event.data.UID] = { tx_error: event.data.reading };
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
