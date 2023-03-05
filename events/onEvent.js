@@ -21,14 +21,12 @@ async function onEvent(event) {
         event.type
       }',  '${JSON.stringify(event.data.reading)}', '${event.data.baseline}');`
     );
-    /*
 
     console.log(
       `TYPE: ${event.type} VALUE: ${JSON.stringify(
         event.data.reading
       )} BASELINE: ${event.data.baseline}, DEVICE: ${event.data.UID} `
     );
-    */
   }
 
   //passive

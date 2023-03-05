@@ -9,7 +9,7 @@ module.exports = async function (data) {
 
   key_String = keys.join(", ") + ", cpu, memory";
 
-  values_String = JSON.stringify(Object.values(data.data.networkStats));
+  values_String = JSON.stringify(Object.values(data.data.networkStats)).trim();
 
   values_String = values_String
     .substring(1, values_String.length - 1)

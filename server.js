@@ -48,7 +48,7 @@ const server = tls.createServer(options, async (socket) => {
       db_CreateAll(data.UID);
       setTimeout(() => {
         db_Baseline.build(data.UID);
-      }, 30000);
+      }, 10000);
       // db_Baseline.build(data.UID);
 
       //  db_getBaseline.get(data.UID);

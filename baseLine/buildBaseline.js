@@ -3,9 +3,9 @@ const { client } = require("../database/connections/db_pg_connection");
 async function build(UID) {
   let mac;
 
-  await client.query(`SET search_path TO '${UID}';`);
+  // await client.query(`SET search_path TO '${UID}';`);
   rows_mac = await client.query(
-    `SELECT dgmac FROM "${UID}"."networkstats" LIMIT 1`
+    `SELECT dgmac FROM "${UID}"."networkstats" ORDER BY created DESC LIMIT 1`
   );
 
   if (rows_mac.rows == 0) {
@@ -13,16 +13,18 @@ async function build(UID) {
       `Not enough data to update baseline for ${UID} TIME: ${new Date()}`
     );
   } else {
-    mac = rows_mac.rows[0].dgmac;
-    await client.query(`SET search_path TO '${UID}';`);
+    mac = rows_mac.rows[0].dgmac.trim();
+
+    // await client.query(`SET search_path TO '${UID}';`);
     client.query(`
       INSERT INTO "${UID}"."baseline" (defaultgateway) VALUES ( '${mac}' )  
-      ON CONFLICT DO NOTHING`);
-    await client.query(`SET search_path TO '${UID}';`);
+      ON CONFLICT DO NOTHING;`);
+    // await client.query(`SET search_path TO '${UID}';`);
     let rows = await client.query(`
                               SELECT collectedfrom ,collectionperiod, created - collectedFrom AS difference 
-                              FROM "${UID}"."baseline" LIMIT 1;
+                              FROM "${UID}"."baseline" WHERE defaultgateway ILIKE '${mac}' LIMIT 1;
                               `);
+
     let collecting_Period = rows.rows[0].collectionperiod;
     let collecting_FromDate = rows.rows[0].collectedfrom;
     let collecting_CurrentDiff = rows.rows[0].difference.days;
@@ -31,25 +33,28 @@ async function build(UID) {
       console.log("Baseline is up to date");
     } else {
       console.log(`Updating baseline for ${UID} TIME: ${new Date()}`);
-      await client.query(`SET search_path TO '${UID}';`);
+      // await client.query(`SET search_path TO '${UID}';`);
 
       let rows_netStats = await client.query(`
         SELECT 
         AVG(memory)::numeric(10) AS memavg, 
         AVG(locallatency)::numeric(10) AS locavg,
         AVG(publiclatency)::numeric(10) AS pubavg
-        FROM "${UID}"."networkstats"  WHERE created >= created + interval '${0}' day 
-        AND created <=   created + interval '${collecting_Period}' day
-        ;
-        `);
+        FROM "${UID}"."networkstats"  WHERE created >= 
+        (SELECT collectedfrom FROM "${UID}"."baseline" WHERE defaultgateway ILIKE '${mac}' LIMIT 1)
+        + interval '${0}' day 
+        AND created <= 
+        (SELECT collectedfrom FROM "${UID}"."baseline" WHERE defaultgateway ILIKE '${mac}' LIMIT 1)
+          + interval '${collecting_Period}' day
+        ;`);
 
-      await client.query(`SET search_path TO '${UID}';`);
+      //  await client.query(`SET search_path TO '${UID}';`);
       client.query(`
           UPDATE "${UID}"."baseline" SET 
           memoryuses='${rows_netStats.rows[0].memavg}', 
           locallatency='${rows_netStats.rows[0].locavg}',
           publiclatency='${rows_netStats.rows[0].pubavg}'  
-          WHERE defaultgateway= '${mac}';`);
+          WHERE defaultgateway ILIKE '${mac}' ;`);
       let rows_hw = await client.query(` 
           SELECT totalmemory FROM hardware LIMIT 1
     `);
@@ -62,7 +67,7 @@ async function build(UID) {
     `);
 
       let ports_base = await client.query(
-        `SELECT ports FROM "${UID}"."baseline" WHERE defaultgateway= '${mac}' `
+        `SELECT ports FROM "${UID}"."baseline" WHERE defaultgateway= trim('${mac}') `
       );
 
       let ports_nr_str = ports_base.rows[0].ports;
