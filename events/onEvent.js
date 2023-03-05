@@ -4,33 +4,8 @@ let db_Baseline = require("../baseLine/buildBaseline");
 const { sendMail } = require("../email/email");
 
 let suppressEvent = {};
-// {
-// uid:  device id {
-//        type: type of event eg. "MEM_TOT"
-//        time: time taken
-//        timeout: turn of duration to suppress [0 = forever (until reset)]
-//            }
-// }
 
 async function onEvent(event) {
-  if (typeof event.data.baseline != "undefined") {
-    client.query(
-      `INSERT INTO  "${
-        event.data.UID
-      }"."events" (type, value, baseline) VALUES ( '${
-        event.type
-      }',  '${JSON.stringify(event.data.reading)}', '${event.data.baseline}');`
-    );
-
-    /*
-    console.log(
-      `TYPE: ${event.type} VALUE: ${JSON.stringify(
-        event.data.reading
-      )} BASELINE: ${event.data.baseline}, DEVICE: ${event.data.UID} `
-    );
-    */
-  }
-
   //passive
   if (event.type == "OS_VER") {
     /// console.log(`Type: ${event.type} Readings: ${event.data.readings} baseline: ${event.data.readings}, DEVICE: ${event.data.UID} `);
@@ -108,6 +83,7 @@ async function onEvent(event) {
       suppressEvent[event.data.UID]?.rx_drop === undefined ||
       suppressEvent[event.data.UID]?.rx_drop < event.type
     ) {
+      addToDatabase(event);
       suppressEvent[event.data.UID] = { rx_drop: event.data.reading };
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
@@ -153,4 +129,24 @@ async function onEvent(event) {
   }
 }
 
-module.exports = { onEvent };
+async function addToDatabase(event) {
+  client.query(
+    `INSERT INTO  "${
+      event.data.UID
+    }"."events" (type, value, baseline) VALUES ( '${
+      event.type
+    }',  '${JSON.stringify(event.data.reading)}', '${event.data.baseline}');`
+  );
+
+  console.log(
+    `TYPE: ${event.type} VALUE: ${JSON.stringify(
+      event.data.reading
+    )} BASELINE: ${event.data.baseline}, DEVICE: ${event.data.UID} `
+  );
+}
+
+async function clearSuppressEventBuffer(UID) {
+  suppressEvent[UID] = {};
+}
+
+module.exports = { onEvent, clearSuppressEventBuffer };
