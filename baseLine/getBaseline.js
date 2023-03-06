@@ -3,8 +3,10 @@ const { client } = require("../database/connections/db_pg_connection");
 let baseLine = {};
 
 async function getBaselineBuff(UID) {
+  
   if (baseLine[UID]?.data === undefined) {
     updateBaselineBuff(UID);
+    baseLine[UID].UID = UID;
   }
   return baseLine[UID];
 }

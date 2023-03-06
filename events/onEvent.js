@@ -76,14 +76,16 @@ async function onEvent(event) {
     });
   } // new neighbour
   if (event.type == "PRT_NEW") {
+  
     if (
       suppressEvent[event.data.UID]?.prt_new === undefined ||
       !("," + suppressEvent[event.data.UID]?.prt_new + ",").includes(
-        "," + port.port + ","
+        "," + event.data.reading + ","
       )
     ) {
+      console.log(suppressEvent[event.data.UID].prt_new)
       suppressEvent[event.data.UID].prt_new =
-        suppressEvent[event.data.UID].prt_new + event.data.reading;
+        suppressEvent[event.data.UID].prt_new + "," + event.data.reading + ",";
       addToDatabase(event);
       clearBaselineBuffer(event.data.UID);
       db_Baseline.build(event.data.UID);

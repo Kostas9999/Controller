@@ -2,7 +2,7 @@ const { client } = require("../database/connections/db_pg_connection");
 
 async function solveText(subject, data) {
   let reason = await mapSubject(subject);
-  ("<h1>Welcome</h1><p>That was easy!</p>");
+  ("<h1>Welcome</h1>");
 
   let response = ` ${reason} 
  [Reading]  -> ${data.reading}
