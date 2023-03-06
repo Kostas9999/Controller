@@ -67,28 +67,41 @@ async function onEvent(event) {
     });
   } // gateway address has ben changed
   if (event.type == "NGH_NEW") {
-    addToDatabase(event);
-    clearBaselineBuffer(event.data.UID);
-    db_Baseline.build(event.data.UID);
-    sendMail(event.data.UID, event.type, {
-      reading: event.data.reading,
-      baseline: event.data.baseline,
-    });
+    //console.log(event.data.reading.mac);
+    if (
+      suppressEvent[event.data.UID]?.ngh_new === undefined ||
+      !("," + suppressEvent[event.data.UID]?.ngh_new + ",").includes(
+        "," + event.data.reading.mac + ","
+      )
+    ) {
+      console.log(suppressEvent[event.data.UID].ngh_new);
+      suppressEvent[event.data.UID].ngh_new =
+        suppressEvent[event.data.UID].ngh_new +
+        "," +
+        event.data.reading.mac +
+        ",";
+      addToDatabase(event);
+      clearBaselineBuffer(event.data.UID);
+      await db_Baseline.build(event.data.UID);
+      sendMail(event.data.UID, event.type, {
+        reading: event.data.reading,
+        baseline: event.data.baseline,
+      });
+    }
   } // new neighbour
   if (event.type == "PRT_NEW") {
-  
     if (
       suppressEvent[event.data.UID]?.prt_new === undefined ||
       !("," + suppressEvent[event.data.UID]?.prt_new + ",").includes(
         "," + event.data.reading + ","
       )
     ) {
-      console.log(suppressEvent[event.data.UID].prt_new)
+    //  console.log(suppressEvent[event.data.UID].prt_new);
       suppressEvent[event.data.UID].prt_new =
         suppressEvent[event.data.UID].prt_new + "," + event.data.reading + ",";
       addToDatabase(event);
       clearBaselineBuffer(event.data.UID);
-      db_Baseline.build(event.data.UID);
+      await db_Baseline.build(event.data.UID);
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
         baseline: event.data.baseline,

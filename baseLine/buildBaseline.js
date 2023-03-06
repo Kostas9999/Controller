@@ -3,7 +3,6 @@ const { client } = require("../database/connections/db_pg_connection");
 async function build(UID) {
   let mac;
 
-
   // await client.query(`SET search_path TO '${UID}';`);
   rows_mac = await client.query(
     `SELECT dgmac FROM "${UID}"."networkstats" ORDER BY created DESC LIMIT 1`
@@ -17,7 +16,7 @@ async function build(UID) {
     mac = rows_mac.rows[0].dgmac.trim();
 
     // await client.query(`SET search_path TO '${UID}';`);
-    client.query(`
+    await client.query(`
       INSERT INTO "${UID}"."baseline" (defaultgateway) VALUES ( '${mac}' )  
       ON CONFLICT DO NOTHING;`);
     // await client.query(`SET search_path TO '${UID}';`);
@@ -39,6 +38,7 @@ async function build(UID) {
       let rows_netStats = await client.query(`
         SELECT 
         AVG(memory)::numeric(10) AS memavg, 
+        AVG(cpu)::numeric(10) AS cpuavg, 
         AVG(locallatency)::numeric(10) AS locavg,
         AVG(publiclatency)::numeric(10) AS pubavg
         FROM "${UID}"."networkstats"  WHERE created >= 
@@ -50,17 +50,18 @@ async function build(UID) {
         ;`);
 
       //  await client.query(`SET search_path TO '${UID}';`);
-      client.query(`
+      await client.query(`
           UPDATE "${UID}"."baseline" SET 
           memoryuses='${rows_netStats.rows[0].memavg}', 
+          cpuuses='${rows_netStats.rows[0].cpuavg}', 
           locallatency='${rows_netStats.rows[0].locavg}',
           publiclatency='${rows_netStats.rows[0].pubavg}'  
           WHERE defaultgateway ILIKE '${mac}' ;`);
       let rows_hw = await client.query(` 
-          SELECT totalmemory FROM hardware LIMIT 1
+          SELECT totalmemory FROM  "${UID}"."hardware" LIMIT 1
     `);
 
-      await client.query(`SET search_path TO '${UID}';`);
+      // await client.query(`SET search_path TO '${UID}';`);
       await client.query(`
         UPDATE "${UID}"."baseline" SET 
         memorytotal='${rows_hw.rows[0].totalmemory}' 
@@ -106,6 +107,35 @@ async function build(UID) {
           neighbours='${neigh_base_str}' 
           WHERE defaultgateway= '${mac}';`);
     }
+
+    let iface = await client.query(
+      `SELECT iface, COUNT(*) as frequency
+    FROM "${UID}"."networkstats"
+    GROUP BY iface
+    ORDER BY frequency DESC
+    LIMIT 1`
+    );
+
+    let iface_all = await client.query(
+      `SELECT *  FROM "${UID}"."networkinterface" WHERE iface = '${iface.rows[0].iface.trim()}'  ORDER BY created DESC
+      LIMIT 1`
+    );
+
+    console.log(iface_all.rows[0]);
+
+    await client.query(`
+    UPDATE "${UID}"."baseline" SET 
+    ( speed, mac, ipv4,ipv4sub,ipv6,ipv6sub,publicip) 
+    =
+    ('${iface_all.rows[0].speed}','${iface_all.rows[0].mac}','${iface_all.rows[0].ipv4}',      
+      '${iface_all.rows[0].ipv4sub}','${iface_all.rows[0].ipv6}','${iface_all.rows[0].ipv4sub}','${iface_all.rows[0].publicip}') 
+    WHERE defaultgateway= '${mac}';`);
+
+    await client.query(`
+    UPDATE "${UID}"."baseline" SET 
+    iface ='${iface.rows[0].iface}' 
+    WHERE defaultgateway= '${mac}';`);
+
     console.log(
       `Updating baseline for ${UID} completed at TIME: ${new Date()}`
     );

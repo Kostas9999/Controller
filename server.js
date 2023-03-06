@@ -36,7 +36,7 @@ const server = tls.createServer(options, async (socket) => {
     try {
       data = JSON.parse(data);
     } catch (error) {
-      console.log(data)
+      console.log(data);
       console.log(error);
     }
 
@@ -51,7 +51,7 @@ const server = tls.createServer(options, async (socket) => {
       db_CreateAll(data.UID);
       setTimeout(() => {
         db_Baseline.build(data.UID);
-      },30000);
+      }, 30000);
       // db_Baseline.build(data.UID);
 
       //  db_getBaseline.get(data.UID);
@@ -83,6 +83,13 @@ const server = tls.createServer(options, async (socket) => {
       compareBaseline.mid(data);
       db_Mid(data);
     } else if (data.type == "DATA_PASSIVE") {
+      let ip = JSON.stringify(socket.remoteAddress);
+      ip = socket.remoteAddress
+        .slice(socket.remoteAddress.lastIndexOf(":") + 1)
+        .trim();
+     
+
+      data.data.networkinterface.publicIP = ip;
       compareBaseline.passive(data);
       db_Passive(data);
     } else if (data.type == "EXEC") {

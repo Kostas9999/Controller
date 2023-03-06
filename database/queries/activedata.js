@@ -15,9 +15,11 @@ module.exports = async function (data) {
     .substring(1, values_String.length - 1)
     .replaceAll('"', "' ");
   //console.log(values_String);
-  client.query(`SET search_path TO '${data.UID}';`);
-
-  await client.query(
-    `INSERT INTO "${data.UID}"."networkstats" ( ${key_String} ) VALUES ( ${values_String}, '${data.data.cpu}' , '${data.data.memory}');`
-  );
+  try {
+    await client.query(
+      `INSERT INTO "${data.UID}"."networkstats" ( ${key_String} ) VALUES ( ${values_String}, '${data.data.cpu}' , '${data.data.memory}');`
+    );
+  } catch (error) {
+    console.log(error);
+  }
 };

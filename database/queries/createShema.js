@@ -52,6 +52,7 @@ module.exports = async function (hwuuid) {
     IPv4Sub varchar(50) DEFAULT NULL,
     IPv6 varchar(50) DEFAULT NULL,
     IPv6Sub varchar(50) DEFAULT NULL,
+    publicip varchar(50) DEFAULT NULL,
     created timestamp NULL DEFAULT CURRENT_TIMESTAMP
   ) ;
   `);
@@ -113,12 +114,21 @@ module.exports = async function (hwuuid) {
     CREATE TABLE IF NOT EXISTS "${hwuuid}"."baseline" (
     memoryTotal bigint DEFAULT NULL,
     memoryUses int DEFAULT NULL,
+    cpuuses int DEFAULT NULL,
     memoryuses_t BIGINT default 80,
     localLatency int DEFAULT NULL,
     localLatency_t BIGINT default 200,
     publicLatency int DEFAULT NULL,
     publicLatency_t BIGINT default 200,
     defaultGateway varchar(50) DEFAULT NULL ,
+    iface varchar DEFAULT NULL,
+    speed int DEFAULT NULL,
+    mac varchar(50) DEFAULT NULL,
+    IPv4 varchar(50) DEFAULT NULL,
+    IPv4Sub varchar(50) DEFAULT NULL,
+    IPv6 varchar(50) DEFAULT NULL,
+    IPv6Sub varchar(50) DEFAULT NULL,
+    publicip varchar(50) DEFAULT NULL,
     ports varchar   DEFAULT 0,
     neighbours varchar  DEFAULT 0,
     Collectionperiod int DEFAULT 14 ,

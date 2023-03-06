@@ -1,7 +1,4 @@
-const pool = require("../connections/db_connection");
 const { client } = require("../connections/db_pg_connection");
-
-//const client = pool.module.pool.promise();
 
 module.exports = async function (data) {
   // get keys from object passed to this function
@@ -11,13 +8,13 @@ module.exports = async function (data) {
   keys.forEach(async (key) => {
     // get most reacent entry in database to compare
     // Reason is that: for passive data only changes are recorded such as OS update
-    client.query(`SET search_path TO '${data.UID}';`);
+
     let rows = await client.query(
-      `SELECT * FROM "${key}" ORDER BY Created DESC LIMIT 1;`
+      `SELECT * FROM "${data.UID}"."${key}" ORDER BY Created DESC LIMIT 1;`
     );
 
     // check is there was any entries in database
-    // delete field "Created" is it will differ from data that is collected and what is in database
+    // delete field "Created" as it will differ from data that is collected and what is in database
     // it could trigger new entry even field data is the same
     if (rows.length > 0) delete rows[0].Created;
 
@@ -39,7 +36,7 @@ module.exports = async function (data) {
 
       // db query
       // insert into "device id" as database, "key" for current table, stringifyed keys and values /// TODO: PREPARED STATAMENTS
-      client.query(`SET search_path TO '${data.UID}';`);
+
       await client.query(
         `INSERT INTO "${data.UID}"."${key}" ( ${key_String} ) VALUES ( ${values_String} ) ;`
       );
