@@ -76,13 +76,22 @@ async function onEvent(event) {
     });
   } // new neighbour
   if (event.type == "PRT_NEW") {
-    addToDatabase(event);
-    clearBaselineBuffer(event.data.UID);
-    db_Baseline.build(event.data.UID);
-    sendMail(event.data.UID, event.type, {
-      reading: event.data.reading,
-      baseline: event.data.baseline,
-    });
+    if (
+      suppressEvent[event.data.UID]?.prt_new === undefined ||
+      !("," + suppressEvent[event.data.UID]?.prt_new + ",").includes(
+        "," + port.port + ","
+      )
+    ) {
+      suppressEvent[event.data.UID].prt_new =
+        suppressEvent[event.data.UID].prt_new + event.data.reading;
+      addToDatabase(event);
+      clearBaselineBuffer(event.data.UID);
+      db_Baseline.build(event.data.UID);
+      sendMail(event.data.UID, event.type, {
+        reading: event.data.reading,
+        baseline: event.data.baseline,
+      });
+    }
   } // new neighbour
   if (event.type == "RX_DRP") {
     if (
