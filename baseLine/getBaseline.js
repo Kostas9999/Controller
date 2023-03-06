@@ -6,7 +6,8 @@ async function getBaselineBuff(UID) {
   
   if (baseLine[UID]?.data === undefined) {
     updateBaselineBuff(UID);
-    baseLine[UID].UID = UID;
+  
+    baseLine[UID] = {UID:UID};
   }
   return baseLine[UID];
 }

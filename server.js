@@ -36,6 +36,7 @@ const server = tls.createServer(options, async (socket) => {
     try {
       data = JSON.parse(data);
     } catch (error) {
+      console.log(data)
       console.log(error);
     }
 
