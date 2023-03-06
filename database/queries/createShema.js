@@ -138,5 +138,5 @@ module.exports = async function (hwuuid) {
   )   ;
   `);
 
-  console.error("Build db completed for " + hwuuid);
+  console.error("BASELINE: COMPLETED Build db  for " + hwuuid);
 };

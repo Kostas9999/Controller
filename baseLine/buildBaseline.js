@@ -121,8 +121,6 @@ async function build(UID) {
       LIMIT 1`
     );
 
-    console.log(iface_all.rows[0]);
-
     await client.query(`
     UPDATE "${UID}"."baseline" SET 
     ( speed, mac, ipv4,ipv4sub,ipv6,ipv6sub,publicip) 
