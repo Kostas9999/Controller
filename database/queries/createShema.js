@@ -1,13 +1,11 @@
 const { client } = require("../connections/db_pg_connection");
 
 module.exports = async function (hwuuid) {
-  //  client.query(
-  //   ` INSERT INTO  groupproject.devices (id) VALUES(' ${hwuuid}'); `
-  //  );
+  client.query(
+    ` INSERT INTO  groupproject.device (id) VALUES('${hwuuid}') ON CONFLICT (id) DO NOTHING; `
+  );
 
   await client.query(` CREATE schema IF NOT EXISTS "${hwuuid}";`);
-
-  await client.query(`SET search_path TO '${hwuuid}';`);
 
   client.query(`
     CREATE TABLE IF NOT EXISTS "${hwuuid}"."disc" (
@@ -38,7 +36,7 @@ module.exports = async function (hwuuid) {
     CREATE TABLE IF NOT EXISTS "${hwuuid}"."hardware" (
     HWUUID varchar(50)  NOT NULL DEFAULT 'none',
     Title varchar(255) DEFAULT NULL,
-    TotalMemory bigint DEFAULT NULL,
+    TotalMemory bigint DEFAULT NULL UNIQUE,
     created timestamp NULL DEFAULT CURRENT_TIMESTAMP      
     ) ;
     `);
@@ -47,12 +45,11 @@ module.exports = async function (hwuuid) {
     CREATE TABLE IF NOT EXISTS "${hwuuid}"."networkinterface" (
     iface varchar(50) DEFAULT NULL,
     speed int DEFAULT NULL,
-    mac varchar(50) DEFAULT NULL,
+    mac varchar(50) DEFAULT NULL UNIQUE,
     IPv4 varchar(50) DEFAULT NULL,
     IPv4Sub varchar(50) DEFAULT NULL,
     IPv6 varchar(50) DEFAULT NULL,
-    IPv6Sub varchar(50) DEFAULT NULL,
-    publicip varchar(50) DEFAULT NULL,
+    IPv6Sub varchar(50) DEFAULT NULL,   
     created timestamp NULL DEFAULT CURRENT_TIMESTAMP
   ) ;
   `);
@@ -70,6 +67,7 @@ module.exports = async function (hwuuid) {
     publicLatency int DEFAULT NULL,
     defaultGateway varchar(50) DEFAULT NULL,
     dgmac varchar(50)  DEFAULT NULL,
+    publicip varchar(50) DEFAULT NULL,
     cpu int DEFAULT NULL,
     memory int DEFAULT NULL,
     created timestamp NULL DEFAULT CURRENT_TIMESTAMP
@@ -80,7 +78,7 @@ module.exports = async function (hwuuid) {
     CREATE TABLE IF NOT EXISTS "${hwuuid}"."os" (
     hostname varchar(50) DEFAULT NULL,
     version varchar(50) DEFAULT NULL,
-    relese varchar(50) DEFAULT NULL,
+    relese varchar(50) DEFAULT NULL UNIQUE,
     build varchar(50) DEFAULT NULL,
     created timestamp NULL DEFAULT CURRENT_TIMESTAMP
     )  ;
@@ -120,7 +118,7 @@ module.exports = async function (hwuuid) {
     localLatency_t BIGINT default 200,
     publicLatency int DEFAULT NULL,
     publicLatency_t BIGINT default 200,
-    defaultGateway varchar(50) DEFAULT NULL ,
+    defaultGateway varchar(50) DEFAULT NULL UNIQUE,
     iface varchar DEFAULT NULL,
     speed int DEFAULT NULL,
     mac varchar(50) DEFAULT NULL,
@@ -138,5 +136,5 @@ module.exports = async function (hwuuid) {
   )   ;
   `);
 
-  console.error("BASELINE: COMPLETED Build db  for " + hwuuid);
+  console.error("DATABASE: Build COMPLETED for " + hwuuid);
 };

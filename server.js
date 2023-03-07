@@ -64,6 +64,13 @@ const server = tls.createServer(options, async (socket) => {
           new Date()
       );
     } else if (data.type == "DATA_ACTIVE") {
+      let ip = JSON.stringify(socket.remoteAddress);
+      ip = socket.remoteAddress
+        .slice(socket.remoteAddress.lastIndexOf(":") + 1)
+        .trim();
+
+      data.data.networkStats.publicip = ip;
+
       compareBaseline.active(data);
       db_Active(data);
       let str = JSON.stringify({ type: "POSTBOX", data: postbox[data.UID] });
@@ -83,13 +90,6 @@ const server = tls.createServer(options, async (socket) => {
       compareBaseline.mid(data);
       db_Mid(data);
     } else if (data.type == "DATA_PASSIVE") {
-      let ip = JSON.stringify(socket.remoteAddress);
-      ip = socket.remoteAddress
-        .slice(socket.remoteAddress.lastIndexOf(":") + 1)
-        .trim();
-     
-
-      data.data.networkinterface.publicIP = ip;
       compareBaseline.passive(data);
       db_Passive(data);
     } else if (data.type == "EXEC") {

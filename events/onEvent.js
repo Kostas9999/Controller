@@ -96,12 +96,12 @@ async function onEvent(event) {
         "," + event.data.reading + ","
       )
     ) {
-    //  console.log(suppressEvent[event.data.UID].prt_new);
+      //  console.log(suppressEvent[event.data.UID].prt_new);
       suppressEvent[event.data.UID].prt_new =
         suppressEvent[event.data.UID].prt_new + "," + event.data.reading + ",";
       addToDatabase(event);
       clearBaselineBuffer(event.data.UID);
-      await db_Baseline.build(event.data.UID);
+      await db_Baseline.addPort(event.data.UID, event.data.reading);
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
         baseline: event.data.baseline,

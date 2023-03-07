@@ -1,6 +1,4 @@
-
 const { client } = require("../connections/db_pg_connection");
-
 
 module.exports = async function (data) {
   let keys = Object.keys(data.data);
@@ -26,7 +24,7 @@ module.exports = async function (data) {
           .replaceAll('"', "' ");
 
         try {
-                 client.query(            
+          client.query(
             `INSERT INTO "${data.UID}"."ports" ( ${ports_keys}  ) VALUES (${values_String})  ON CONFLICT (port) DO UPDATE SET (${ports_keys}, created) = ( ${values_String}, now());`
           );
         } catch (error) {
