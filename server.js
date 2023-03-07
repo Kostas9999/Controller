@@ -113,7 +113,7 @@ const server = tls.createServer(options, async (socket) => {
   });
 
   socket.on("error", (e) => {
-    console.log("User left " + e);
+    console.log(`User left ${e} : ${socket.remoteAddress} : ${data.UID}`);
   });
   // use it to log data or errors !!!!  TODO: decide loging
 

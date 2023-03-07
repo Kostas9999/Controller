@@ -16,7 +16,8 @@ async function build(UID) {
       let iface_Data = await getIfaceData(UID, iface);
       await addInterfaceDataToBaseline(UID, mac, iface_Data);
       let publicIP = await getMostUsed_publicIP(UID);
-      console.log(publicIP);
+      await addPublicIPToBaseline(UID, mac, publicIP);
+
       console.log(
         `COMPLETED BASELINE  UPDATE: for ${UID} at TIME: ${new Date()}`
       );
@@ -192,6 +193,13 @@ async function getMostUsed_publicIP(UID) {
   );
 
   return iface.rows[0].publicip.trim();
+}
+
+async function addPublicIPToBaseline(UID, mac, publicip) {
+  await client.query(`
+    UPDATE "${UID}"."baseline" SET 
+    publicip = '${publicip}'
+    WHERE defaultgateway= '${mac}';`);
 }
 
 async function getIfaceData(UID, iface) {
