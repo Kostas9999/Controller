@@ -1,10 +1,35 @@
 const { client } = require("../database/connections/db_pg_connection");
 
-async function build(UID) {
-  let mac;
+async function buildAll()
+{
+  console.log(`STARTED BASELINE UPDATE: for ${UID} TIME: ${new Date()}`);
+  if (mac !== "false")  {
+  let mac = await getMac(UID);
+  addMac(UID,mac)
+  if(isStillCollecting(UID,mac))
+  {
+    await setAverages(UID, mac)
+    await setTotalMemory(UID,mac)
+    let ports_nr_str = await getPortsFromBaseline(UID,mac);
+    await updatePortBaseline(UID,mac,ports_nr_str);
+    let neigh_base_str = await getNeighboursBaseline(UID,mac);
+    await addNeighbours(UID,mac,neigh_base_str);
+    let iface = await getMostUsed_Iface(UID);
+    let iface_Data = await getIfaceData(UID,iface);
+    await addInterfaceDataToBaseline(UID,mac,iface_Data);
+  }
 
-  // await client.query(`SET search_path TO '${UID}';`);
-  rows_mac = await client.query(
+
+  console.log( `COMPLETED BASELINE  UPDATE: for ${UID} at TIME: ${new Date()}`);
+  }
+  else(console.log("Default gateway MAC missing"))  
+  console.log( `COMPLETED BASELINE  UPDATE: for ${UID} at TIME: ${new Date()}`);
+}
+
+ function getMac(UID)
+{
+
+  rows_mac = client.query(
     `SELECT dgmac FROM "${UID}"."networkstats" ORDER BY created DESC LIMIT 1`
   );
 
@@ -12,87 +37,125 @@ async function build(UID) {
     console.log(
       `Not enough data to update baseline for ${UID} TIME: ${new Date()}`
     );
+    return mac ="false"
   } else {
     mac = rows_mac.rows[0].dgmac.trim();
+    return mac;
+  }
 
-    // await client.query(`SET search_path TO '${UID}';`);
-    await client.query(`
-      INSERT INTO "${UID}"."baseline" (defaultgateway) VALUES ( '${mac}' )  
-      ON CONFLICT DO NOTHING;`);
-    // await client.query(`SET search_path TO '${UID}';`);
-    let rows = await client.query(`
-                              SELECT collectedfrom ,collectionperiod, created - collectedFrom AS difference 
-                              FROM "${UID}"."baseline" WHERE defaultgateway ILIKE '${mac}' LIMIT 1;
-                              `);
+}
 
-    let collecting_Period = rows.rows[0].collectionperiod;
-    let collecting_FromDate = rows.rows[0].collectedfrom;
-    let collecting_CurrentDiff = rows.rows[0].difference.days;
+ function addMac(UID,mac)
+{
+   client.query(`
+  INSERT INTO "${UID}"."baseline" (defaultgateway) VALUES ( '${mac}' )  
+  ON CONFLICT DO NOTHING;`);
 
-    if (collecting_CurrentDiff > collecting_Period) {
-      console.log("Baseline is up to date");
-    } else {
-      console.log(`Updating baseline for ${UID} TIME: ${new Date()}`);
-      // await client.query(`SET search_path TO '${UID}';`);
+}
 
-      let rows_netStats = await client.query(`
-        SELECT 
-        AVG(memory)::numeric(10) AS memavg, 
-        AVG(cpu)::numeric(10) AS cpuavg, 
-        AVG(locallatency)::numeric(10) AS locavg,
-        AVG(publiclatency)::numeric(10) AS pubavg
-        FROM "${UID}"."networkstats"  WHERE created >= 
-        (SELECT collectedfrom FROM "${UID}"."baseline" WHERE defaultgateway ILIKE '${mac}' LIMIT 1)
-        + interval '${0}' day 
-        AND created <= 
-        (SELECT collectedfrom FROM "${UID}"."baseline" WHERE defaultgateway ILIKE '${mac}' LIMIT 1)
-          + interval '${collecting_Period}' day
-        ;`);
 
-      //  await client.query(`SET search_path TO '${UID}';`);
-      await client.query(`
-          UPDATE "${UID}"."baseline" SET 
-          memoryuses='${rows_netStats.rows[0].memavg}', 
-          cpuuses='${rows_netStats.rows[0].cpuavg}', 
-          locallatency='${rows_netStats.rows[0].locavg}',
-          publiclatency='${rows_netStats.rows[0].pubavg}'  
-          WHERE defaultgateway ILIKE '${mac}' ;`);
+async function isStillCollecting(UID,mac){
+  let rows = await client.query(`
+  SELECT collectedfrom, collectionperiod, created - collectedFrom AS difference 
+  FROM "${UID}"."baseline" WHERE defaultgateway ILIKE '${mac}' LIMIT 1;
+  `);
+
+  let collecting_Period = rows.rows[0].collectionperiod;
+  let collecting_FromDate = rows.rows[0].collectedfrom;
+  let collecting_CurrentDiff = rows.rows[0].difference.days;
+
+  if (collecting_CurrentDiff > collecting_Period) {
+  return false;
+  } else {return true}
+
+}
+
+async function setAverages(UID, mac )
+{
+  let rows_netStats = await client.query(`
+  SELECT 
+  AVG(memory)::numeric(10) AS memavg, 
+  AVG(cpu)::numeric(10) AS cpuavg, 
+  AVG(locallatency)::numeric(10) AS locavg,
+  AVG(publiclatency)::numeric(10) AS pubavg
+  FROM "${UID}"."networkstats"  WHERE created >= 
+  (SELECT collectedfrom FROM "${UID}"."baseline" WHERE defaultgateway ILIKE '${mac}' LIMIT 1)
+  + interval '${0}' day 
+  AND created <= 
+  (SELECT collectedfrom FROM "${UID}"."baseline" WHERE defaultgateway ILIKE '${mac}' LIMIT 1)
+  + interval 
+  (SELECT collectionperiod FROM "${UID}"."baseline" WHERE defaultgateway ILIKE '${mac}' LIMIT 1)    
+  day
+  ;`);
+
+//  await client.query(`SET search_path TO '${UID}';`);
+await client.query(`
+    UPDATE "${UID}"."baseline" SET 
+    memoryuses='${rows_netStats.rows[0].memavg}', 
+    cpuuses='${rows_netStats.rows[0].cpuavg}', 
+    locallatency='${rows_netStats.rows[0].locavg}',
+    publiclatency='${rows_netStats.rows[0].pubavg}'  
+    WHERE defaultgateway ILIKE '${mac}' ;`);
+
+
+}
+ 
+
+async function setTotalMemory(UID,mac)
+{
+
       let rows_hw = await client.query(` 
           SELECT totalmemory FROM  "${UID}"."hardware" LIMIT 1
     `);
 
-      // await client.query(`SET search_path TO '${UID}';`);
+    
       await client.query(`
         UPDATE "${UID}"."baseline" SET 
         memorytotal='${rows_hw.rows[0].totalmemory}' 
         WHERE defaultgateway= '${mac}';
     `);
 
-      let ports_base = await client.query(
-        `SELECT ports FROM "${UID}"."baseline" WHERE defaultgateway= trim('${mac}') `
-      );
+}
 
-      let ports_nr_str = ports_base.rows[0].ports;
-      let rows_ports = await client.query(`SELECT port FROM "${UID}"."ports"`);
+async function getPortsFromBaseline(UID,mac){
 
-      rows_ports.rows.forEach((p) => {
-        if (!("," + ports_nr_str + ",").includes("," + p.port + ",")) {
-          console.log(`${p.port} - Port added to baseline`);
-          ports_nr_str = ports_nr_str + "," + p.port;
-        }
-      });
+  let ports_base = await client.query(
+    `SELECT ports FROM "${UID}"."baseline" WHERE defaultgateway= trim('${mac}') `
+  );
 
-      await client.query(`
-        UPDATE "${UID}"."baseline" SET 
-        ports='${ports_nr_str}' 
-        WHERE defaultgateway= '${mac}';`);
-      //=============================
+  return ports_base.rows[0].ports;
 
+
+}
+
+async function updatePortBaseline(UID,mac,ports_nr_str){
+
+    let rows_ports = await client.query(`SELECT port FROM "${UID}"."ports"`);
+
+    rows_ports.rows.forEach((p) => {
+      if (!("," + ports_nr_str + ",").includes("," + p.port + ",")) {
+        console.log(`${p.port} - Port added to baseline`);
+        ports_nr_str = ports_nr_str + "," + p.port;
+      }
+    });
+
+    await client.query(`
+      UPDATE "${UID}"."baseline" SET 
+      ports='${ports_nr_str}' 
+      WHERE defaultgateway= '${mac}';`);
+
+  }
+     
+async function getNeighboursBaseline(UID,mac)
+    {
       let neigh_base = await client.query(
         `SELECT neighbours FROM "${UID}"."baseline" WHERE defaultgateway= '${mac}' `
       );
+      return neigh_base.rows[0].neighbours;
+    }
 
-      let neigh_base_str = neigh_base.rows[0].neighbours;
+async function addNeighbours(UID,mac,neigh_base_str)
+{
       let rows_neigh = await client.query(`SELECT mac FROM "${UID}"."arp"`);
 
       rows_neigh.rows.forEach((p) => {
@@ -106,37 +169,42 @@ async function build(UID) {
           UPDATE "${UID}"."baseline" SET 
           neighbours='${neigh_base_str}' 
           WHERE defaultgateway= '${mac}';`);
+   
+    }
+async function getMostUsed_Iface(UID){
+      let iface = await client.query(
+        `SELECT iface, COUNT(*) as frequency
+      FROM "${UID}"."networkstats"
+      GROUP BY iface
+      ORDER BY frequency DESC
+      LIMIT 1`
+      );
+
+      return iface.rows[0].iface.trim();
     }
 
-    let iface = await client.query(
-      `SELECT iface, COUNT(*) as frequency
-    FROM "${UID}"."networkstats"
-    GROUP BY iface
-    ORDER BY frequency DESC
-    LIMIT 1`
-    );
-
+async function getIfaceData(UID,iface)
+ {
     let iface_all = await client.query(
-      `SELECT *  FROM "${UID}"."networkinterface" WHERE iface = '${iface.rows[0].iface.trim()}'  ORDER BY created DESC
+      `SELECT *  FROM "${UID}"."networkinterface" WHERE iface = '${iface}'  ORDER BY created DESC
       LIMIT 1`
     );
+    return iface_all.rows[0];
+    }
 
+async function addInterfaceDataToBaseline(UID,mac,iface_Data)
+    {
     await client.query(`
     UPDATE "${UID}"."baseline" SET 
-    ( speed, mac, ipv4,ipv4sub,ipv6,ipv6sub,publicip) 
+    ( iface, speed, mac, ipv4,ipv4sub,ipv6,ipv6sub,publicip) 
     =
-    ('${iface_all.rows[0].speed}','${iface_all.rows[0].mac}','${iface_all.rows[0].ipv4}',      
-      '${iface_all.rows[0].ipv4sub}','${iface_all.rows[0].ipv6}','${iface_all.rows[0].ipv4sub}','${iface_all.rows[0].publicip}') 
+    ('${iface_Data.iface}','${iface_Data.speed}','${iface_Data.mac}','${iface_Data.ipv4}',      
+      '${iface_Data.ipv4sub}','${iface_Data.ipv6}','${iface_Data.ipv4sub}','${iface_Data.publicip}') 
     WHERE defaultgateway= '${mac}';`);
 
-    await client.query(`
-    UPDATE "${UID}"."baseline" SET 
-    iface ='${iface.rows[0].iface}' 
-    WHERE defaultgateway= '${mac}';`);
+    }
 
-    console.log(
-      `Updating baseline for ${UID} completed at TIME: ${new Date()}`
-    );
-  }
-}
+
+
+
 module.exports = { build };
