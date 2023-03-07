@@ -16,11 +16,13 @@ async function updateBaselineBuff(UID) {
   rows_mac = await client.query(
     `SELECT dgmac FROM "${UID}"."networkstats" ORDER BY created DESC LIMIT 1`
   );
-  let mac = rows_mac.rows[0].dgmac;
-
-  if (rows_mac.rowCount == 0) {
+  
+let mac;
+  if (rows_mac.rowCount == 0 ) {
     return `Not enough data to update baseline for ${UID} TIME: ${new Date()}`;
   } else {
+   mac = rows_mac.rows[0].dgmac;
+
     rows_baseline = await client.query(
       `SELECT * FROM "${UID}"."baseline" WHERE "defaultgateway" ILIKE trim('${mac}') LIMIT 1;`
     );
