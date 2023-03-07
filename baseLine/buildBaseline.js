@@ -1,11 +1,11 @@
 const { client } = require("../database/connections/db_pg_connection");
 
-async function buildAll()
+async function build(UID)
 {
   console.log(`STARTED BASELINE UPDATE: for ${UID} TIME: ${new Date()}`);
   if (mac !== "false")  {
   let mac = await getMac(UID);
-  addMac(UID,mac)
+  await addMac(UID,mac)
   if(isStillCollecting(UID,mac))
   {
     await setAverages(UID, mac)
@@ -24,6 +24,21 @@ async function buildAll()
   }
   else(console.log("Default gateway MAC missing"))  
   console.log( `COMPLETED BASELINE  UPDATE: for ${UID} at TIME: ${new Date()}`);
+}
+
+async function addPort(UID,portToAdd)
+{
+  if(isStillCollecting(UID,mac)){
+  let mac = await getMac(UID)
+  let ports_nr_str = await getPortsFromBaseline(UID,mac);
+  ports_nr_str = ports_nr_str + "," + portToAdd;
+
+  await client.query(`
+  UPDATE "${UID}"."baseline" SET 
+  ports='${ports_nr_str}' 
+  WHERE defaultgateway= '${mac}';`);
+  }else{ console.log("Baseline is already build")}
+
 }
 
  function getMac(UID)
@@ -144,7 +159,7 @@ async function updatePortBaseline(UID,mac,ports_nr_str){
       ports='${ports_nr_str}' 
       WHERE defaultgateway= '${mac}';`);
 
-  }
+}
      
 async function getNeighboursBaseline(UID,mac)
     {
@@ -152,7 +167,7 @@ async function getNeighboursBaseline(UID,mac)
         `SELECT neighbours FROM "${UID}"."baseline" WHERE defaultgateway= '${mac}' `
       );
       return neigh_base.rows[0].neighbours;
-    }
+}
 
 async function addNeighbours(UID,mac,neigh_base_str)
 {
@@ -170,7 +185,7 @@ async function addNeighbours(UID,mac,neigh_base_str)
           neighbours='${neigh_base_str}' 
           WHERE defaultgateway= '${mac}';`);
    
-    }
+}
 async function getMostUsed_Iface(UID){
       let iface = await client.query(
         `SELECT iface, COUNT(*) as frequency
@@ -181,7 +196,7 @@ async function getMostUsed_Iface(UID){
       );
 
       return iface.rows[0].iface.trim();
-    }
+}
 
 async function getIfaceData(UID,iface)
  {
@@ -190,7 +205,7 @@ async function getIfaceData(UID,iface)
       LIMIT 1`
     );
     return iface_all.rows[0];
-    }
+}
 
 async function addInterfaceDataToBaseline(UID,mac,iface_Data)
     {
@@ -202,9 +217,9 @@ async function addInterfaceDataToBaseline(UID,mac,iface_Data)
       '${iface_Data.ipv4sub}','${iface_Data.ipv6}','${iface_Data.ipv4sub}','${iface_Data.publicip}') 
     WHERE defaultgateway= '${mac}';`);
 
-    }
+}
 
 
 
 
-module.exports = { build };
+module.exports = { build, addPort };
