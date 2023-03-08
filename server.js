@@ -13,6 +13,7 @@ let { clearBaselineBuffer } = require("./baseLine/getBaseline");
 let { clearSuppressEventBuffer } = require("./events/onEvent");
 
 let postbox = [];
+let connections = [];
 let PORT = 57070;
 
 const options = {
@@ -38,7 +39,6 @@ const server = tls.createServer(options, async (socket) => {
   socket.write(JSON.stringify({ type: "MSG", data: "Connected to a server" }));
 
   socket.on("data", (data) => {
-    // do validation here ///////////////////////////////////////////////////////////////
     try {
       data = JSON.parse(data);
     } catch (error) {
@@ -50,6 +50,8 @@ const server = tls.createServer(options, async (socket) => {
 
     if (data.type == "HELLO") {
       console.log("CONNECTED: " + data.UID + " TIME: " + new Date());
+
+      connections[data.UID] = socket;
 
       clearBaselineBuffer(data.UID);
       clearSuppressEventBuffer(data.UID);
@@ -79,19 +81,7 @@ const server = tls.createServer(options, async (socket) => {
 
       compareBaseline.active(data);
       db_Active(data);
-      let str = JSON.stringify({ type: "POSTBOX", data: postbox[data.UID] });
-      socket.write(str);
-
-      if (typeof postbox[data.UID] !== "undefined") {
-        //verify user is he entitled to execute command on this device
-        console.log(postbox[data.UID]);
-        let str = JSON.stringify({
-          type: "POSTBOX",
-          data: { type: "EXEC", data: postbox[data.UID] },
-        });
-        socket.write(str);
-        postbox[data.UID] = undefined;
-      }
+      checkPostBox(data.UID, socket);
     } else if (data.type == "DATA_MID") {
       compareBaseline.mid(data);
       db_Mid(data);
@@ -99,10 +89,20 @@ const server = tls.createServer(options, async (socket) => {
       compareBaseline.passive(data);
       db_Passive(data);
     } else if (data.type == "EXEC") {
-      let innerData = JSON.parse(data.data);
+      let data_str = data.data;
+      let data_rc = JSON.parse(data_str);
 
-      postbox[innerData.device] = data.data;
-      console.log(postbox);
+      if (connections[data_rc.device] !== undefined) {
+        let message = JSON.stringify({
+          type: "POSTBOX",
+          data: data_rc,
+        });
+
+        connections[data_rc.device].write(message);
+      }
+
+      postbox[data.data.device] = data.data;
+
       socket.destroy();
       socket.end();
     }
@@ -113,10 +113,23 @@ const server = tls.createServer(options, async (socket) => {
     }
 
     // check for messages to send back to a user   !!!!!  TODO:   impliment QUEUE - FIFO not a stack
-    if (postbox.length > 0) {
-      socket.write(JSON.stringify({ type: "POSTBOX", data: postbox.pop() }));
-    }
+    //   if (postbox.length > 0) {
+    //    socket.write(JSON.stringify({ type: "POSTBOX", data: postbox.pop() }));
+    //  }
   });
+
+  async function checkPostBox(UID, socket) {
+    if (typeof postbox[UID] !== "undefined") {
+      console.log(postbox[UID]);
+      let message = JSON.stringify({
+        type: "POSTBOX",
+        data: { type: "EXEC", data: postbox[UID] },
+      });
+
+      socket.write(message);
+      postbox[UID] = undefined;
+    }
+  }
 
   socket.on("error", (e) => {
     console.log(`User left ${e} : ${socket.remoteAddress}`);

@@ -25,18 +25,6 @@ module.exports = async function (port) {
         console.log("Got error: " + e.message);
       });
 
-    /*
-
-      res.on("end", () => {
-        const data = JSON.parse(body);
-        client.query(
-          ` INSERT INTO  groupproject.server (ip,port) VALUES('${data.ip}', ${port}) ON CONFLICT (ip) DO UPDATE SET heartbeat = now(); `
-        );
-        console.log(
-          `HEARTHBEAT: IP: ${data.ip} PORT: ${port} TIME: ${new Date()}`
-        );
-      });
-      */
   } catch (error) {
     console.log(error);
   }
