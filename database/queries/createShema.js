@@ -1,6 +1,7 @@
 const { client } = require("../connections/db_pg_connection");
 
 module.exports = async function (hwuuid) {
+  console.error(`DATABASE: STARTED BUILD for ${hwuuid} at TIME: ${new Date()}`);
   client.query(
     ` INSERT INTO  groupproject.device (id) VALUES('${hwuuid}') ON CONFLICT (id) DO NOTHING; `
   );
@@ -136,5 +137,7 @@ module.exports = async function (hwuuid) {
   )   ;
   `);
 
-  console.error("DATABASE: Build COMPLETED for " + hwuuid);
+  console.error(
+    `DATABASE: COMPLETED BUILD for ${hwuuid} at TIME: ${new Date()}`
+  );
 };

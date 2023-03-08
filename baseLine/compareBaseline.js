@@ -147,6 +147,9 @@ async function active(data) {
       if (baseline.data.locallatency != null) {
         let n =
           baseline.data.locallatency * (baseline.data.locallatency_t / 100);
+        if (n < 10) {
+          n = 10;
+        }
         if (data.data.networkStats.localLatency > n) {
           onEvent.onEvent({
             type: "LAT_LOC",

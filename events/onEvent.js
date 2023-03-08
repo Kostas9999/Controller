@@ -67,14 +67,12 @@ async function onEvent(event) {
     });
   } // gateway address has ben changed
   if (event.type == "NGH_NEW") {
-    //console.log(event.data.reading.mac);
     if (
       suppressEvent[event.data.UID]?.ngh_new === undefined ||
       !("," + suppressEvent[event.data.UID]?.ngh_new + ",").includes(
         "," + event.data.reading.mac + ","
       )
     ) {
-      console.log(suppressEvent[event.data.UID].ngh_new);
       suppressEvent[event.data.UID].ngh_new =
         suppressEvent[event.data.UID].ngh_new +
         "," +
@@ -96,7 +94,6 @@ async function onEvent(event) {
         "," + event.data.reading + ","
       )
     ) {
-      //  console.log(suppressEvent[event.data.UID].prt_new);
       suppressEvent[event.data.UID].prt_new =
         suppressEvent[event.data.UID].prt_new + "," + event.data.reading + ",";
       addToDatabase(event);

@@ -40,9 +40,8 @@ module.exports = async function (data) {
           .substring(1, values_String.length - 1)
           .replaceAll('"', "' ");
         try {
-          client.query(`SET search_path TO '${data.UID}';`);
           await client.query(
-            `INSERT INTO "${data.UID}"."disc" (${disc_keys}  ) VALUES (${values_String})  ON CONFLICT (fs) DO UPDATE SET created = now();`
+            `INSERT INTO "${data.UID}"."disc" (${disc_keys}  ) VALUES (${values_String})  ON CONFLICT (fs) DO UPDATE SET (${disc_keys}, created) = ( ${values_String}, now());`
           );
         } catch (error) {
           console.log(error);
@@ -55,7 +54,6 @@ module.exports = async function (data) {
         .substring(1, values_String.length - 1)
         .replaceAll('"', "' ");
       try {
-        client.query(`SET search_path TO '${data.UID}';`);
         await client.query(
           //`REPLACE INTO ${data.UID}.${key} ( ${user_keys} ) VALUES (${values_String} );`
           `INSERT INTO "${data.UID}"."${key}" ( ${user_keys} ) VALUES (${values_String})  ON CONFLICT (username) DO UPDATE SET created = now();`

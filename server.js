@@ -5,6 +5,7 @@ let db_Passive = require("./database/queries/passivedata");
 let db_Mid = require("./database/queries/middata");
 let db_Active = require("./database/queries/activedata");
 let db_CreateAll = require("./database/queries/createShema");
+let sendIP = require("./database/queries/sendMyiP");
 
 let db_Baseline = require("./baseLine/buildBaseline");
 let compareBaseline = require("./baseLine/compareBaseline");
@@ -12,7 +13,7 @@ let { clearBaselineBuffer } = require("./baseLine/getBaseline");
 let { clearSuppressEventBuffer } = require("./events/onEvent");
 
 let postbox = [];
-//
+let PORT = 57070;
 
 const options = {
   ca: fs.readFileSync("./cert/ca.pem"),
@@ -23,10 +24,15 @@ const options = {
   requestCert: true,
 };
 
+setInterval(() => {
+  sendIP(PORT);
+}, 300000);
+
 const server = tls.createServer(options, async (socket) => {
   console.log(
-    "Server connected",
-    socket.authorized ? "authorized" : "unauthorized"
+    "CONNECTED:",
+    socket.authorized ? "authorized" : "unauthorized",
+    socket.remoteAddress
   );
   socket.setEncoding("utf8");
   socket.write(JSON.stringify({ type: "MSG", data: "Connected to a server" }));
@@ -43,7 +49,7 @@ const server = tls.createServer(options, async (socket) => {
     // Sort data by its type
 
     if (data.type == "HELLO") {
-      console.log("Connected: " + data.UID + " Date: " + new Date());
+      console.log("CONNECTED: " + data.UID + " TIME: " + new Date());
 
       clearBaselineBuffer(data.UID);
       clearSuppressEventBuffer(data.UID);
@@ -113,14 +119,11 @@ const server = tls.createServer(options, async (socket) => {
   });
 
   socket.on("error", (e) => {
-    console.log(`User left ${e} : ${socket.remoteAddress} : ${data.UID}`);
+    console.log(`User left ${e} : ${socket.remoteAddress}`);
   });
-  // use it to log data or errors !!!!  TODO: decide loging
-
-  // const fileStream = fs.createWriteStream("./receivedData.txt");
-  // socket.pipe(fileStream);
 });
 
-server.listen(57070, () => {
+server.listen(PORT, () => {
   console.log("Server started");
+  sendIP(PORT);
 });
