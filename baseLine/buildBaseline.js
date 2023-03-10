@@ -5,7 +5,7 @@ async function build(UID) {
   if (mac !== "false") {
     await addMac(UID, mac);
     if (isStillCollecting(UID, mac)) {
-      console.log(`BASELINE: STARTED UPDATE for ${UID} TIME: ${new Date()}`);
+      console.log(`BASELINE: STARTED UPDATE for ${UID} at TIME: ${new Date()}`);
       await setAverages(UID, mac);
       await setTotalMemory(UID, mac);
       let ports_nr_str = await getPortsFromBaseline(UID, mac);

@@ -24,7 +24,6 @@ module.exports = async function (port) {
       .on("error", function (e) {
         console.log("Got error: " + e.message);
       });
-
   } catch (error) {
     console.log(error);
   }
