@@ -113,7 +113,7 @@ module.exports = async function (hwuuid) {
     CREATE TABLE IF NOT EXISTS "${hwuuid}"."server" (
     ip varchar(50)   NOT NULL DEFAULT 'none' UNIQUE,      
     port varchar(50) DEFAULT NULL,       
-    created timestamp NULL DEFAULT CURRENT_TIMESTAMP
+    created timestamp NULL DEFAULT CURRENT_TIMESTAMP    
     ) ;`);
 
   client.query(`
