@@ -80,14 +80,14 @@ const server = tls.createServer(options, async (socket) => {
       data.data.networkStats.publicip = ip;
 
       compareBaseline.active(data);
-      db_Active(data);
+      //db_Active(data);
       checkPostBox(data.UID, socket);
     } else if (data.type == "DATA_MID") {
       compareBaseline.mid(data);
-      db_Mid(data);
+      // db_Mid(data);
     } else if (data.type == "DATA_PASSIVE") {
       compareBaseline.passive(data);
-      db_Passive(data);
+      // db_Passive(data);
     } else if (data.type == "EXEC") {
       let data_str = data.data;
       let data_rc = JSON.parse(data_str);
