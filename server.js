@@ -14,7 +14,7 @@ let { clearSuppressEventBuffer } = require("./events/onEvent");
 
 let postbox = [];
 let connections = [];
-let PORT = 57070;
+let PORT = 80;
 
 const options = {
   ca: fs.readFileSync("./cert/ca.pem"),
