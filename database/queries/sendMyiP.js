@@ -1,7 +1,7 @@
 const { client } = require("../connections/db_pg_connection");
 const http = require("https");
 
-module.exports = async function (port) {
+module.exports = async function (port, users) {
   try {
     const options = {
       host: "checkip.amazonaws.com",
@@ -13,8 +13,9 @@ module.exports = async function (port) {
         res.setEncoding("utf8");
         res.on("data", function (ip) {
           ip = ip.replace("\n", "").trim();
+
           client.query(
-            ` INSERT INTO  groupproject.server (ip,port) VALUES('${ip}', ${port}) ON CONFLICT (ip) DO UPDATE SET heartbeat = now(); `
+            ` INSERT INTO  groupproject.server (ip, port, connectedusers) VALUES ('${ip}', ${port}, ${users}) ON CONFLICT (ip) DO UPDATE SET (connectedusers, heartbeat)  = (${users}, now() ); `
           );
           console.log(
             `HEARTHBEAT: IP: ${ip} PORT: ${port} TIME: ${new Date()}`

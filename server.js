@@ -26,7 +26,13 @@ const options = {
 };
 
 setInterval(() => {
-  sendIP(PORT);
+  try {
+    let users = Object.keys(connections).length;
+
+    sendIP(PORT, users);
+  } catch (error) {
+    console.log(error);
+  }
 }, 300000);
 
 const server = tls.createServer(options, async (socket) => {
@@ -138,5 +144,5 @@ const server = tls.createServer(options, async (socket) => {
 
 server.listen(PORT, () => {
   console.log("Server started");
-  sendIP(PORT);
+  sendIP(PORT, 0);
 });
