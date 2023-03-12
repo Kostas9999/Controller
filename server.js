@@ -59,6 +59,9 @@ const server = tls.createServer(options, async (socket) => {
 
       connections[data.UID] = socket;
 
+      let users = Object.keys(connections).length;
+      sendIP(PORT, users);
+
       clearBaselineBuffer(data.UID);
       clearSuppressEventBuffer(data.UID);
 
