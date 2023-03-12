@@ -18,7 +18,7 @@ module.exports = async function (port, users) {
             ` INSERT INTO  groupproject.server (ip, port, connectedusers) VALUES ('${ip}', ${port}, ${users}) ON CONFLICT (ip,port) DO UPDATE SET (connectedusers, heartbeat)  = (${users}, now() ); `
           );
           console.log(
-            `HEARTHBEAT: IP: ${ip} PORT: ${port} TIME: ${new Date()}`
+            `HEARTHBEAT: IP: ${ip} PORT: ${port}  CONNECTED USERS: ${users}  TIME: ${new Date()} `
           );
         });
       })
