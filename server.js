@@ -39,7 +39,7 @@ const server = tls.createServer(options, async (socket) => {
   console.log(
     "CONNECTED:",
     socket.authorized ? "authorized" : "unauthorized",
-    socket.remoteAddress
+    socket.remoteAddress.slice(socket.remoteAddress.lastIndexOf(":") + 1).trim()
   );
   socket.setEncoding("utf8");
   socket.write(JSON.stringify({ type: "MSG", data: "Connected to a server" }));
@@ -68,7 +68,7 @@ const server = tls.createServer(options, async (socket) => {
       db_CreateAll(data.UID);
       setTimeout(() => {
         db_Baseline.build(data.UID);
-      }, 30000);
+      }, 60000);
       // db_Baseline.build(data.UID);
 
       //  db_getBaseline.get(data.UID);
