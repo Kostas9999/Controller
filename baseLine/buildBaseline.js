@@ -6,16 +6,22 @@ async function build(UID) {
     await addMac(UID, mac);
     if (isStillCollecting(UID, mac)) {
       console.log(`BASELINE: STARTED UPDATE for ${UID} at TIME: ${new Date()}`);
+      console.log("set avg");
       await setAverages(UID, mac);
+      console.log("set tot mem");
       await setTotalMemory(UID, mac);
       let ports_nr_str = await getPortsFromBaseline(UID, mac);
+      console.log("updatePortBaselin");
       await updatePortBaseline(UID, mac, ports_nr_str);
       let neigh_base_str = await getNeighboursBaseline(UID, mac);
+      console.log("addNeighbours");
       await addNeighbours(UID, mac, neigh_base_str);
       let iface = await getMostUsed_Iface(UID);
       let iface_Data = await getIfaceData(UID, iface);
       await addInterfaceDataToBaseline(UID, mac, iface_Data);
+      console.log("add interfaces");
       let publicIP = await getMostUsed_publicIP(UID);
+      console.log("add public ip");
       await addPublicIPToBaseline(UID, mac, publicIP);
 
       console.log(
