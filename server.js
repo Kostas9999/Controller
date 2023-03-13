@@ -15,7 +15,7 @@ let { clearSuppressEventBuffer } = require("./events/onEvent");
 let postbox = [];
 let connections = [];
 let PORT = 80;
-
+//
 const options = {
   ca: fs.readFileSync("./cert/ca.pem"),
   key: fs.readFileSync("./cert/key.pem"),
@@ -120,16 +120,10 @@ const server = tls.createServer(options, async (socket) => {
     else {
       console.log("UNKNOWN_DATA_TYPE " + socket.remoteAddress);
     }
-
-    // check for messages to send back to a user   !!!!!  TODO:   impliment QUEUE - FIFO not a stack
-    //   if (postbox.length > 0) {
-    //    socket.write(JSON.stringify({ type: "POSTBOX", data: postbox.pop() }));
-    //  }
   });
 
   async function checkPostBox(UID, socket) {
     if (typeof postbox[UID] !== "undefined") {
-      console.log(postbox[UID]);
       let message = JSON.stringify({
         type: "POSTBOX",
         data: { type: "EXEC", data: postbox[UID] },

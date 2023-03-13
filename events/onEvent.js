@@ -108,49 +108,52 @@ async function onEvent(event) {
   if (event.type == "RX_DRP") {
     if (
       suppressEvent[event.data.UID]?.rx_drop === undefined ||
-      suppressEvent[event.data.UID]?.rx_drop < event.type
+      suppressEvent[event.data.UID]?.rx_drop < event.data.reading
     ) {
+      suppressEvent[event.data.UID].rx_drop = event.data.reading;
       addToDatabase(event);
-      suppressEvent[event.data.UID] = { rx_drop: event.data.reading };
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
         baseline: event.data.baseline,
       });
     }
   }
+
   if (event.type == "RX_ERR") {
     if (
       suppressEvent[event.data.UID]?.rx_error === undefined ||
-      suppressEvent[event.data.UID]?.rx_error < event.type
+      suppressEvent[event.data.UID]?.rx_error < event.data.reading
     ) {
       addToDatabase(event);
-      suppressEvent[event.data.UID] = { rx_error: event.data.reading };
+      suppressEvent[event.data.UID].rx_error = event.data.reading;
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
         baseline: event.data.baseline,
       });
     }
   }
+
   if (event.type == "TX_DRP") {
     if (
       suppressEvent[event.data.UID]?.tx_drop === undefined ||
-      suppressEvent[event.data.UID]?.tx_drop < event.type
+      suppressEvent[event.data.UID]?.tx_drop < event.data.reading
     ) {
       addToDatabase(event);
-      suppressEvent[event.data.UID] = { tx_drop: event.data.reading };
+      suppressEvent[event.data.UID].tx_drop = event.data.reading;
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
         baseline: event.data.baseline,
       });
     }
   }
+
   if (event.type == "TX_ERR") {
     if (
       suppressEvent[event.data.UID]?.tx_error === undefined ||
-      suppressEvent[event.data.UID]?.tx_error < event.type
+      suppressEvent[event.data.UID]?.tx_error < event.data.reading
     ) {
       addToDatabase(event);
-      suppressEvent[event.data.UID] = { tx_error: event.data.reading };
+      suppressEvent[event.data.UID].tx_error = event.data.reading;
       sendMail(event.data.UID, event.type, {
         reading: event.data.reading,
         baseline: event.data.baseline,
