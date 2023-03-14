@@ -21,7 +21,7 @@ const options = {
   key: fs.readFileSync("./cert/key.pem"),
   cert: fs.readFileSync("./cert/ca.pem"),
   passphrase: "MGproject",
-  rejectUnauthorized: false,
+  rejectUnauthorized: true,
   requestCert: true,
 };
 
