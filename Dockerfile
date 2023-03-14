@@ -15,9 +15,9 @@ RUN npm ci --only=production
 # Bundle app source
 COPY . .
 
-RUN --network=host
+##RUN docker --network=host
 
-RUN docker run -d --restart always kostux/server
+#RUN docker run -d --restart always kostux/server
 #RUN docker restart $(docker ps -a -q)
 
 #EXPOSE 57070:57070

@@ -9,7 +9,7 @@ module.exports = async function (data) {
   let disc_keys = Object.keys(data.data.disc[0]);
   disc_keys = disc_keys.join(", ").replace(" use,", " uses,");
 
-  let arp_keys = Object.keys(data.data.arp[0]);
+  let arp_keys = Object.keys(data?.data?.arp[0]);
   arp_keys = arp_keys.join(", ");
 
   let user_keys = Object.keys(data.data.user);
@@ -63,7 +63,7 @@ module.exports = async function (data) {
       }
     }
 
-    if (key === "arp") {
+    if (key === "arp" && arp_keys !== undefined) {
       data.data.arp.forEach(async (arp) => {
         values_String = JSON.stringify(Object.values(arp));
         values_String = values_String
