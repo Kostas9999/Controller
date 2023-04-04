@@ -7,7 +7,12 @@ async function build(UID) {
     if (isStillCollecting(UID, mac)) {
       console.log(`BASELINE: STARTED UPDATE for ${UID} at TIME: ${new Date()}`);
       console.log("set avg");
-      await setAverages(UID, mac);
+      try {
+        await setAverages(UID, mac);
+      } catch (error) {
+        console.log(`BASELINE ERROR SET AVERAGE\n ${error}`)
+      }
+     
       console.log("set tot mem");
       await setTotalMemory(UID, mac);
       let ports_nr_str = await getPortsFromBaseline(UID, mac);
@@ -108,6 +113,8 @@ async function setAverages(UID, mac) {
   (SELECT collectedfrom FROM "${UID}"."baseline" WHERE defaultgateway ILIKE '${mac}' LIMIT 1)
   + interval '${baselineDates.rows[0].collectionperiod} ' day
   ;`);
+
+  console.log(`DEBUG: ${rows_netStats.rows}`)
 
   //  await client.query(`SET search_path TO '${UID}';`);
   await client.query(`
