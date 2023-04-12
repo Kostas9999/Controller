@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Kostas9999/Controller#readme",
   "dependencies": {
+    "checksum": "^1.0.0",
     "mysql2": "^3.0.1",
     "net": "^1.0.2",
     "nodemailer": "^6.9.1",

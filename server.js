@@ -1,5 +1,6 @@
 const tls = require("tls");
 const fs = require("fs");
+const checksum = require("checksum");
 
 let db_Passive = require("./database/queries/passivedata");
 let db_Mid = require("./database/queries/middata");
@@ -47,6 +48,15 @@ const server = tls.createServer(options, async (socket) => {
   socket.on("data", (data) => {
     try {
       data = JSON.parse(data);
+
+      let checkSumValid =
+        data?.trailer?.checksum === checksum(JSON.stringify(data.data));
+
+      if (!checkSumValid) {
+        console.log("Checksum missmatch.. Data Discarded.");
+        console.log(data);
+        return;
+      }
     } catch (error) {
       console.log(data);
       console.log(error);
@@ -94,7 +104,7 @@ const server = tls.createServer(options, async (socket) => {
 
       compareBaseline.active(data);
       db_Active(data);
-      checkPostBox(data.UID, socket);
+      //  checkPostBox(data.UID, socket);
     } else if (data.type == "DATA_MID") {
       compareBaseline.mid(data);
       db_Mid(data);
