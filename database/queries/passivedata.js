@@ -30,7 +30,10 @@ module.exports = async function (data) {
       .replaceAll('"', "'");
 
     await client.query(
-      `INSERT INTO "${data.UID}"."${key}" ( ${key_String} ) VALUES ( ${values_String} )  ON CONFLICT (${conflict_Key}) DO UPDATE SET (${key_String}, created) = ( ${values_String}, now());`
+      `INSERT INTO "${data.UID}"."${key}" ( ${key_String} ) 
+       VALUES ( ${values_String} )  
+       ON CONFLICT (${conflict_Key}) 
+       DO UPDATE SET (${key_String}, created) = ( ${values_String}, now());`
     );
   });
 };

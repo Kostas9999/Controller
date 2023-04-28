@@ -50,10 +50,10 @@ const server = tls.createServer(options, async (socket) => {
       data = JSON.parse(data);
 
       let checkSumValid =
-        data?.trailer?.checksum === checksum(JSON.stringify(data.data));
+        data?.trailer?.CHECKSUM === checksum(JSON.stringify(data.data));
 
       if (!checkSumValid) {
-        console.log("Checksum missmatch.. Data Discarded.");
+        console.log("Checksum missmatch.. Following Data Is Discarded.");
         console.log(data);
         return;
       }
@@ -117,7 +117,7 @@ const server = tls.createServer(options, async (socket) => {
 
       if (connections[data_rc.device] !== undefined) {
         let message = JSON.stringify({
-          type: "POSTBOX",
+          type: "EXEC",
           data: data_rc,
         });
 
