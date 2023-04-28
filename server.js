@@ -13,10 +13,13 @@ let compareBaseline = require("./baseLine/compareBaseline");
 let { clearBaselineBuffer } = require("./baseLine/getBaseline");
 let { clearSuppressEventBuffer } = require("./events/onEvent");
 
-let postbox = [];
+// array to store connections that will be received from API call to webserver
 let connections = [];
+
+// port 443 used to bypass limitation on public network
 let PORT = 443;
-//
+
+// Settings for secure connection
 const options = {
   ca: fs.readFileSync("./cert/ca.pem"),
   key: fs.readFileSync("./cert/key.pem"),
@@ -26,6 +29,7 @@ const options = {
   requestCert: true,
 };
 
+// Report that server is alive every 5 minutes
 setInterval(() => {
   try {
     let users = Object.keys(connections).length;
@@ -36,25 +40,34 @@ setInterval(() => {
   }
 }, 300000);
 
+// create connection
 const server = tls.createServer(options, async (socket) => {
   console.log(
     "CONNECTED:",
     socket.authorized ? "authorized" : "unauthorized",
     socket.remoteAddress.slice(socket.remoteAddress.lastIndexOf(":") + 1).trim()
   );
+
+  // set encoding
   socket.setEncoding("utf8");
+
+  // inform user that is connected to a server (user can start sending the data)
   socket.write(JSON.stringify({ type: "MSG", data: "Connected to a server" }));
 
+  // If data is received
   socket.on("data", (data) => {
     try {
+      // parse data to an object
       data = JSON.parse(data);
 
       let checkSumValid =
         data?.trailer?.CHECKSUM === checksum(JSON.stringify(data.data));
 
+      // validate checksum
+      // if checksum missmatch drop the packet
       if (!checkSumValid) {
         console.log("Checksum missmatch.. Following Data Is Discarded.");
-        console.log(data);
+        console.log(data.data);
         return;
       }
     } catch (error) {
@@ -67,15 +80,25 @@ const server = tls.createServer(options, async (socket) => {
     if (data.type == "HELLO") {
       console.log("CONNECTED: " + data.UID + " TIME: " + new Date());
 
+      // add connected user to a connection list
+      // list will be used to pass messages from webserver or to request data
       connections[data.UID] = socket;
 
       let users = Object.keys(connections).length;
+
+      // update server report with user count (might be used from load balancing)
       sendIP(PORT, users);
 
+      // clear buffers( cache) for particular user
       clearBaselineBuffer(data.UID);
       clearSuppressEventBuffer(data.UID);
 
+      // create schema for new user
+      // for other just verify if schema is updated (CREATE IF NOT EXISTS)
       db_CreateAll(data.UID);
+
+      // set timeout for baseline
+      // let exchange inital data before running baseline
       setTimeout(() => {
         try {
           db_Baseline.build(data.UID);
@@ -83,10 +106,9 @@ const server = tls.createServer(options, async (socket) => {
           console.log("Error building baseline\n" + error);
         }
       }, 60000);
-      // db_Baseline.build(data.UID);
-
-      //  db_getBaseline.get(data.UID);
-    } else if (data.type == "MSG") {
+    }
+    // Messages to be printed in console and might be used for logging
+    else if (data.type == "MSG") {
       console.log(
         data.data +
           " " +
@@ -94,38 +116,46 @@ const server = tls.createServer(options, async (socket) => {
           " Date:t " +
           new Date()
       );
-    } else if (data.type == "DATA_ACTIVE") {
+    }
+    // Process active data
+    else if (data.type == "DATA_ACTIVE") {
+      // get ip address
       let ip = JSON.stringify(socket.remoteAddress);
       ip = socket.remoteAddress
         .slice(socket.remoteAddress.lastIndexOf(":") + 1)
         .trim();
 
+      // add ip address to datafield
       data.data.networkStats.publicip = ip;
 
+      // check data against baseline and trigger events if needed
       compareBaseline.active(data);
+
+      // pass data to database query
       db_Active(data);
-      //  checkPostBox(data.UID, socket);
     } else if (data.type == "DATA_MID") {
+      // check data against baseline and trigger events if needed
       compareBaseline.mid(data);
+      // pass data to database query
       db_Mid(data);
     } else if (data.type == "DATA_PASSIVE") {
+      // check data against baseline and trigger events if needed
       compareBaseline.passive(data);
+      // pass data to database query
       db_Passive(data);
     } else if (data.type == "EXEC") {
-      let data_str = data.data;
-      let data_rc = JSON.parse(data_str);
-
-      if (connections[data_rc.device] !== undefined) {
+      // prepare data to pass it to a end node
+      if (connections[data.data.device] !== undefined) {
         let message = JSON.stringify({
           type: "EXEC",
-          data: data_rc,
+          data: data.data,
         });
 
-        connections[data_rc.device].write(message);
+        // Send execution request to a node
+        connections[data.data.device].write(message);
       }
 
-      postbox[data.data.device] = data.data;
-
+      // drop connection between website and a server (dont think that works - DEBUG)
       socket.destroy();
       socket.end();
     }
@@ -136,23 +166,13 @@ const server = tls.createServer(options, async (socket) => {
     }
   });
 
-  async function checkPostBox(UID, socket) {
-    if (typeof postbox[UID] !== "undefined") {
-      let message = JSON.stringify({
-        type: "POSTBOX",
-        data: { type: "EXEC", data: postbox[UID] },
-      });
-
-      socket.write(message);
-      postbox[UID] = undefined;
-    }
-  }
-
+  // display message when user left (TODO remove user from connection list)
   socket.on("error", (e) => {
     console.log(`User left ${e} : ${socket.remoteAddress}`);
   });
 });
 
+// start server
 server.listen(PORT, () => {
   console.log("Server started");
   sendIP(PORT, 0);

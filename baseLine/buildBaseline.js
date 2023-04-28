@@ -1,18 +1,33 @@
 const { client } = require("../database/connections/db_pg_connection");
 
+// start build baseline for particular device
+// UID - device identification
+
 async function build(UID) {
+  // get MAC address of devices gateway
+  // baseline is build by individual gateway
   let mac = await getMac(UID);
+
+  // if there no MAC address of gateway
+  // (if Active data was not exchanged yet)
+  // then skip baseline build
   if (mac !== "false") {
+    // add mac address to baseline
     await addMac(UID, mac);
+
+    // check if baseline still in building stage
+    // current date is between build start date and finish date(start date + period)
     if (isStillCollecting(UID, mac)) {
       console.log(`BASELINE: STARTED UPDATE for ${UID} at TIME: ${new Date()}`);
       console.log("set avg");
+
+      // build individual parts of baseline
       try {
         await setAverages(UID, mac);
       } catch (error) {
-        console.log(`BASELINE ERROR SET AVERAGE\n ${error}`)
+        console.log(`BASELINE ERROR SET AVERAGE\n ${error}`);
       }
-     
+
       console.log("set tot mem");
       await setTotalMemory(UID, mac);
       let ports_nr_str = await getPortsFromBaseline(UID, mac);
@@ -114,7 +129,7 @@ async function setAverages(UID, mac) {
   + interval '${baselineDates.rows[0].collectionperiod} ' day
   ;`);
 
-  console.log(`DEBUG: ${rows_netStats.rows}`)
+  //console.log(`DEBUG BUILD BASELINE: ${JSON.stringify(rows_netStats.rows)}`);
 
   //  await client.query(`SET search_path TO '${UID}';`);
   await client.query(`

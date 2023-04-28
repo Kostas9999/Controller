@@ -2,6 +2,8 @@ const { client } = require("../database/connections/db_pg_connection");
 let { getBaselineBuff, updateBaselineBuff } = require("./getBaseline");
 const onEvent = require("../events/onEvent");
 
+// compare pasive data against baseline
+
 async function passive(data) {
   let buff_passive = {};
   if (Object.keys(buff_passive).length == 0) {
