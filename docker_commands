@@ -11,4 +11,4 @@ docker run -d --restart no kostux/server
 
 sudo docker run --network=host -d --restart unless-stopped kostux/server
 
-docker logs -f kostux/server
+docker logs -f {container id}
