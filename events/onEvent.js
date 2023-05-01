@@ -53,9 +53,17 @@ async function onEvent(event) {
   } // high memory usage
   if (event.type == "LAT_LOC") {
     addToDatabase(event);
+    sendMail(event.data.UID, event.type, {
+      reading: event.data.reading,
+      baseline: event.data.baseline,
+    });
   } // local latency
   if (event.type == "LAT_PUB") {
     addToDatabase(event);
+    sendMail(event.data.UID, event.type, {
+      reading: event.data.reading,
+      baseline: event.data.baseline,
+    });
   } // public latency
   if (event.type == "GTW_ADR") {
     addToDatabase(event);
